@@ -1,17 +1,21 @@
-The Pandemic Penalty: COVID-19’s gendered impact on academic
-productivity
-================
-Megan Frederickson and Molly King
-July 8, 2020
+---
+title: "The Pandemic Penalty: COVID-19's gendered impact on academic productivity"
+author: "Megan Frederickson and Molly King"
+date: "July 8, 2020"
+output: github_document
+editor_options: 
+  chunk_output_type: console
+---
 
-We quantified how the COVID-19 pandemic is affecting the gender
-breakdown of preprint submissions to [arXiv](https://arxiv.org/) and
-[bioRxiv](https://www.biorxiv.org/), two preprint servers that together
-cover many STEM fields.
+```{r setup, include=FALSE}
+knitr::opts_chunk$set(echo = TRUE)
+```
+
+We quantified how the COVID-19 pandemic is affecting the gender breakdown of preprint submissions to [arXiv](https://arxiv.org/) and [bioRxiv](https://www.biorxiv.org/), two preprint servers that together cover many STEM fields. 
 
 We used these packages:
 
-``` r
+```{r Load packages, message=FALSE, warning=FALSE}
 #Load packages
 library(tidyverse) #includes ggplot2, dplyr, readr, stringr
 library(knitr)
@@ -27,44 +31,84 @@ library(anytime)
 
 ## arXiv submissions
 
-We scraped submission data from arXiv, a preprint server for physics,
-math, computer science, statistics, and other quantitative disciplines.
-We used the aRxiv package to scrape the data, see:
+We scraped submission data from arXiv, a preprint server for physics, math, computer science, statistics, and other quantitative disciplines. We used the aRxiv package to scrape the data, see:
 
-Karthik, R. and K. Broman (2019). aRxiv: Interface to the arXiv API. R
-package version 0.5.19. <https://CRAN.R-project.org/package=aRxiv>
+Karthik, R. and K. Broman (2019). aRxiv: Interface to the arXiv API. R package version 0.5.19. https://CRAN.R-project.org/package=aRxiv
+  
+We began by scraping all records for March 15-April 15, 2020, during the COVID-19 pandemic, and for the same date range in 2019. Then, we expanded to scrape all the data for Jan 1, 2020 to June 30, 2020, inclusive. We scraped the data in batches, as recommended in the aRxiv package tutorial. For brevity, we am not reproducing the code here, but it is available in the [R markdown file](https://github.com/drfreder/king-and-frederickson/master/README.Rmd) included in this repo.
 
-We began by scraping all records for March 15-April 15, 2020, during the
-COVID-19 pandemic, and for the same date range in 2019. Then, we
-expanded to scrape all the data for Jan 1, 2020 to June 30, 2020,
-inclusive. We scraped the data in batches, as recommended in the aRxiv
-package tutorial. For brevity, we am not reproducing the code here, but
-it is available in the [R markdown
-file](https://github.com/drfreder/king-and-frederickson/master/README.Rmd)
-included in this repo.
+```{r Scrape arXiv, include=FALSE, message=FALSE, warning=FALSE, eval=FALSE}
+#Not run
+#Get all submissions between March 15, 2020 and April 15, 2020 (during the COVID-19 pandemic)
+n.2020 <- arxiv_count(query = 'submittedDate:[202003150000 TO 202004152400]')
+df.2020.1 <- arxiv_search(query = 'submittedDate:[202003150000 TO 202003212400]', limit=n.2020, batchsize=1000)
+df.2020.2 <- arxiv_search(query = 'submittedDate:[202003220000 TO 202003282400]', limit=n.2020, batchsize=1000)
+df.2020.3 <- arxiv_search(query = 'submittedDate:[202003290000 TO 202004032400]', limit=n.2020, batchsize=1000)
+df.2020.4 <- arxiv_search(query = 'submittedDate:[202004040000 TO 202004092400]', limit=n.2020, batchsize=1000)
+df.2020.5 <- arxiv_search(query = 'submittedDate:[202004100000 TO 202004121415]', limit=n.2020, batchsize=2000)
+df.2020.6 <- arxiv_search(query = 'submittedDate:[202004121420 TO 202004152400]', limit=n.2020, batchsize=1000)
+df.2020.full <- rbind(df.2020.1, df.2020.2, df.2020.3, df.2020.4, df.2020.5, df.2020.6)
+n.2020-length(df.2020.full$id) #Check that the number of records matches
+write.csv(df.2020.full, file="Data/arxiv_2020_data.csv")
 
+#Get all submission between March 15, 2019 and April 15, 2019 (the same dates last year)
+n.2019 <- arxiv_count(query = 'submittedDate:[201903150000 TO 201904152400]')
+df.2019.1 <- arxiv_search(query = 'submittedDate:[201903150000 TO 201903222400]', limit=n.2019, batchsize=2000)
+df.2019.2 <- arxiv_search(query = 'submittedDate:[201903230000 TO 201903292400]', limit=n.2019, batchsize=2000)
+df.2019.3 <- arxiv_search(query = 'submittedDate:[201903300000 TO 201904052400]', limit=n.2019, batchsize=2000)
+df.2019.4 <- arxiv_search(query = 'submittedDate:[201904060000 TO 201904122400]', limit=n.2019, batchsize=2000)
+df.2019.5 <- arxiv_search(query = 'submittedDate:[201904130000 TO 201904152400]', limit=n.2019, batchsize=2000)
+df.2019.full <- rbind(df.2019.1, df.2019.2, df.2019.3, df.2019.4, df.2019.5)
+n.2019-length(df.2019.full$id)
+write.csv(df.2019.full, file="Data/arxiv_2019_data.csv")
+
+#Get all submissions between Jan. 1, 2020 and March 15, 2020
+n.early2020 <- arxiv_count(query = 'submittedDate:[202001010000 TO 202003152400]')
+df.early2020.1 <- arxiv_search(query = 'submittedDate:[202001010000 TO 202001152400]', limit=n.early2020, batchsize=2000)
+df.early2020.2 <- arxiv_search(query = 'submittedDate:[202001160000 TO 202001312400]', limit=n.early2020, batchsize=2000)
+df.early2020.3 <- arxiv_search(query = 'submittedDate:[202002010000 TO 202002152400]', limit=n.early2020, batchsize=2000)
+df.early2020.4 <- arxiv_search(query = 'submittedDate:[202002160000 TO 202002292400]', limit=n.early2020, batchsize=2000)
+df.early2020.5 <- arxiv_search(query = 'submittedDate:[202003010000 TO 202003152400]', limit=n.early2020, batchsize=2000)
+df.early2020.full <- rbind(df.early2020.1, df.early2020.2, df.early2020.3, df.early2020.4, df.early2020.5)
+n.early2020-length(df.early2020.full$id)
+write.csv(df.early2020.full, file="Data/arxiv_early2020_data.csv")
+
+#Get all submissions between Apr. 16, 2020 and April 30, 2020 (update analysis with most recent data)
+n.update <- arxiv_count(query = 'submittedDate:[202004160000 TO 202004222400]')
+df.update <- arxiv_search(query = 'submittedDate:[202004160000 TO 202004222400]', limit=n.update, batchsize=2000)
+n.update - length(df.update$id)
+write.csv(df.update, file="Data/arxiv_update2020_data.csv")
+
+n.update.2 <- arxiv_count(query = 'submittedDate:[202004230000 TO 202004302400]')
+df.update.2 <- arxiv_search(query = 'submittedDate:[202004230000 TO 202004302400]', limit=n.update.2, batchsize=2000)
+n.update.2 - length(df.update.2$id)
+write.csv(df.update.2, file="Data/arxiv_update2020_2_data.csv")
+
+#May and June data
+#Get all submissions between Apr. 16, 2020 and April 30, 2020 (update analysis with most recent data)
+n.update.3 <- arxiv_count(query = 'submittedDate:[202005010000 TO 202006302400]')
+df.update.3 <- arxiv_search(query = 'submittedDate:[202005010000 TO 202005152400]', limit=n.update.3, batchsize=2000)
+df.update.4 <- arxiv_search(query = 'submittedDate:[202005160000 TO 202005312400]', limit=n.update.3, batchsize=2000)
+df.update.5 <- arxiv_search(query = 'submittedDate:[202006010000 TO 202006152400]', limit=n.update.3, batchsize=2000)
+df.update.6 <- arxiv_search(query = 'submittedDate:[202006160000 TO 202006302400]', limit=n.update.3, batchsize=2000)
+df.update.7 <- rbind(df.update.3, df.update.4, df.update.5, df.update.6)
+n.update.3 - length(df.update.7$id)
+
+#n.update - length(df.update$id)
+write.csv(df.update.7, file="Data/arxiv_updateMayJune2020_data.csv")
+```
+ 
 Next, we assigned gender to author names using the gender package, see:
 
-Mullen, L. (2019). gender: Predict Gender from Names Using Historical
-Data. R package version 0.5.3, <https://github.com/ropensci/gender>.
+Mullen, L. (2019). gender: Predict Gender from Names Using Historical Data. R package version 0.5.3, https://github.com/ropensci/gender. 
 
-This package returns the probability that a name is male or female by
-comparing the name to names in a database; we used the U.S. Social
-Security Administration baby names database.
+This package returns the probability that a name is male or female by comparing the name to names in a database; we used the U.S. Social Security Administration baby names database. 
 
-Please note: this is a brute force method of predicting gender, and it
-has many limitations, as discussed by the package authors on their
-GitHub repo and included links. By using this method, we are not
-assuming that individuals are correctly gendered in the resulting
-dataset, but merely that it provides insight into gender’s effects in
-aggregate across the population of preprint authors.
+Please note: this is a brute force method of predicting gender, and it has many limitations, as discussed by the package authors on their GitHub repo and included links. By using this method, we are not assuming that individuals are correctly gendered in the resulting dataset, but merely that it provides insight into gender's effects in aggregate across the population of preprint authors. 
 
-We predicted the genders of preprint authors, and summarized the data as
-the number of male and female authors of each preprint, regardless of
-author order. This code takes a while to run, so it is not run when
-knitting this markdown document.
+We predicted the genders of preprint authors, and summarized the data as the number of male and female authors of each preprint, regardless of author order. This code takes a while to run, so it is not run when knitting this markdown document.
 
-``` r
+```{r Predict arXiv author gender, eval=FALSE, message=FALSE, warning=FALSE}
 #Not run
 #First combine data for year-by-year comparison
 df.2020 <- read.csv("Data/arxiv_2020_data.csv") #Read in data
@@ -121,10 +165,9 @@ df.all2020.output <- as.data.frame(apply(df.all2020,2,as.character))
 write.csv(df.all2020.output, "Data/arxiv_all2020_gender.csv") #Save data
 ```
 
-Next, we calculated some summary statistics for the arXiv dataset we
-assembled.
+Next, we calculated some summary statistics for the arXiv dataset we assembled.
 
-``` r
+```{r Summarize arXiv dataset, message=FALSE, warning=FALSE}
 df.full <- read.csv("~/Dropbox/Megan2020/Pandemic Penalty/arxiv_full_gender.csv") #Read in data
 df.full <- df.full[!duplicated(df.full), ] #Remove duplicates, if any
 df.full$author.n <- str_count(df.full$authors, pattern = "\\|")+1 #Count author number
@@ -146,28 +189,15 @@ year.arxiv.preprints <- length(df.full$"id") #Total number of preprints for year
 year.arxiv.authors <- sum(df.full[, "male.n"]+df.full[, "female.n"]) #Authors with gender inferred for year-over-year comparison
 ```
 
-There are 114632 preprints in the full arXiv dataset, with a total of
-549512 non-unique authors. We inferred the gender of 266133 authors, or
-48.4%, with the rest omitted from subsequent analyses. This a lower
-success rate for predicting author gender for the arXiv dataset than for
-the bioRxiv dataset (see below), reflecting the fact that arXiv
-preprints are more likely to list large consortia as authors (e.g., CMS
-Collaboration), have authors who provide only first initials, or have
-authors who have names not in the U.S. Social Security names database.
+There are `r total.preprints` preprints in the full arXiv dataset, with a total of `r format(total.authors, scientific=FALSE)` non-unique authors. We inferred the gender of `r total.authors.with.gender` authors, or `r per.gender`%, with the rest omitted from subsequent analyses. This a lower success rate for predicting author gender for the arXiv dataset than for the bioRxiv dataset (see below), reflecting the fact that arXiv preprints are more likely to list large consortia as authors (e.g., CMS Collaboration), have authors who provide only first initials, or have authors who have names not in the U.S. Social Security names database. 
 
-For just the comparison of March 15-April 15, 2020 with the same dates
-in 2019, there are 28711 arXiv preprints with 67309 authors for whom we
-inferred
-gender.
+For just the comparison of March 15-April 15, 2020 with the same dates in 2019, there are `r year.arxiv.preprints` arXiv preprints with `r year.arxiv.authors` authors for whom we inferred gender.
 
 ### Comparing arXiv preprint authors between Mar/Apr 2019 and Mar/Apr 2020, by gender
 
-How many male versus female authors of preprints were there in Mar/Apr
-2020, compared to the same dates last year? Note: this is not the number
-of unique authors; it includes authors who submitted multiple
-preprints.
+How many male versus female authors of preprints were there in Mar/Apr 2020, compared to the same dates last year? Note: this is not the number of unique authors; it includes authors who submitted multiple preprints. 
 
-``` r
+```{r Visualize arXiv year-over-year data, message=FALSE, warning=FALSE, fig.width=8, fig.height=4, dpi=300}
 df.full$year <- as.factor(year(as.Date(df.full$submitted))) #Extract year
 all <- as.data.frame(ungroup(df.full %>% group_by(year) %>% summarize(Female = sum(female.n, na.rm=TRUE), Male = sum(male.n, na.rm=TRUE)))) #Summarize by year
 all.long <- gather(all, Gender, number, Female:Male) #Make wide data long
@@ -183,37 +213,21 @@ p1 <- ggplot(data=all.long, aes(fill=as.factor(year), y=number, x=Gender))+geom_
 p1 
 ```
 
-![](README_files/figure-gfm/Visualize%20arXiv%20year-over-year%20data-1.png)<!-- -->
-
-arXiv preprint submissions are up overall, but the number of male
-authors is currently growing faster than the number of female authors.
-Comparing preprint submissions in late March and early April 2020 to the
-same dates in 2019, the number of male authors has grown more than the
-number of female authors, both as a percent change and in absolute
-terms.
+arXiv preprint submissions are up overall, but the number of male authors is currently growing faster than the number of female authors. Comparing preprint submissions in late March and early April 2020 to the same dates in 2019, the number of male authors has grown more than the number of female authors, both as a percent change and in absolute terms. 
 
 The same data, but in tabular form:
 
-``` r
+```{r arXiv year-over-year table}
 #Or in tabular form
 colnames(all.long) <- c("Year", "Gender", "Number of authors submitting arXiv preprints in Mar/Apr, by gender")
 kable(all.long)
 ```
 
-| Year | Gender | Number of authors submitting arXiv preprints in Mar/Apr, by gender |
-| :--- | :----- | -----------------------------------------------------------------: |
-| 2019 | Female |                                                               6968 |
-| 2020 | Female |                                                               7157 |
-| 2019 | Male   |                                                              25768 |
-| 2020 | Male   |                                                              27416 |
-
 ### Comparing single-authored arXiv preprints between Mar/Apr 2019 and Mar/Apr 2020, by gender
 
-How many arXiv preprints were single-authored by a female versus a male
-academic in Mar/Apr, 2020, compared to the same dates last
-year?
+How many arXiv preprints were single-authored by a female versus a male academic in Mar/Apr, 2020, compared to the same dates last year? 
 
-``` r
+```{r Sole authors,  message=FALSE, warning=FALSE, fig.width=8, fig.height=4, dpi=300}
 sole.authors <- as.data.frame(ungroup(subset(df.full, author.n == 1) %>% group_by(year) %>% summarize(Female = sum(female.n, na.rm=TRUE), Male = sum(male.n, na.rm=TRUE)))) #Summarize by year
 sole.long <- gather(sole.authors, Gender, number, Male:Female) #Make wide data long
 sole.authors.t <- as.data.frame(t(sole.authors[,-1])) #Transpose
@@ -225,38 +239,21 @@ p2 <- ggplot(data=sole.long, aes(fill=as.factor(year), y=number, x=Gender))+geom
 p2
 ```
 
-![](README_files/figure-gfm/Sole%20authors-1.png)<!-- -->
-
-Single-authored arXiv submissions are also up overall, but again the
-number of male authors is currently growing faster than the number of
-female authors, both as a percent change and in absolute terms.
+Single-authored arXiv submissions are also up overall, but again the number of male authors is currently growing faster than the number of female authors, both as a percent change and in absolute terms. 
 
 The same data, but in tabular form:
 
-``` r
+```{r arXiv sole author year-over-year table}
 #Or in tabular form
 colnames(sole.long) <- c("Year", "Gender", "Number of single-authored arXiv preprints submittted, by gender")
 kable(sole.long)
 ```
 
-| Year | Gender | Number of single-authored arXiv preprints submittted, by gender |
-| :--- | :----- | --------------------------------------------------------------: |
-| 2019 | Male   |                                                            1161 |
-| 2020 | Male   |                                                            1273 |
-| 2019 | Female |                                                             188 |
-| 2020 | Female |                                                             195 |
-
 ### Comparing arXiv preprint submissions in the months before and during COVID-19 pandemic, by gender
 
-Next, we looked back over the months leading up to widespread
-stay-at-home orders and school and childcare closures that North
-Americans experienced beginning in late March or early April, 2020.
-These measures were implemented to different degrees and on different
-dates in different parts of the world, but we assumed their effects
-would be most pronounced (globally) starting in March, 2020 and
-thereafter.
+Next, we looked back over the months leading up to widespread stay-at-home orders and school and childcare closures that North Americans experienced beginning in late March or early April, 2020. These measures were implemented to different degrees and on different dates in different parts of the world, but we assumed their effects would be most pronounced (globally) starting in March, 2020 and thereafter. 
 
-``` r
+```{r Early 2020 arXiv analysis, fig.height=4, fig.width=8, message=FALSE, warning=FALSE, dpi=300}
 start.date <- as.Date("2020-03-01") #Month WHO declared COVID-19 a pandemic
 df.all2020$COVID <- ifelse(as.Date(df.all2020$submitted) < start.date, "January 1-February 29, 2020", ifelse(as.Date(df.all2020$submitted) < "2020-05-01", "March 1-April 30, 2020", "May 1-June 30, 2020")) #Classify dates as COVID or not
 arxiv <- as.data.frame(ungroup(subset(df.all2020, as.Date(submitted) >= "2020-01-01" & as.Date(submitted) <= "2020-06-30") %>% group_by(COVID) %>% summarize(female.n=sum(female.n, na.rm=TRUE), male.n=sum(male.n, na.rm=TRUE)))) #Summarize by month
@@ -278,41 +275,23 @@ p3 <- ggplot(data=arxiv.long, aes(fill=COVID, y=n, x=gender))+geom_bar(position=
 p3
 ```
 
-![](README_files/figure-gfm/Early%202020%20arXiv%20analysis-1.png)<!-- -->
-
-Again, during the pandemic, the number of male authors has grown faster
-than the number of female authors, both in absolute terms and as a
-percent change.
+Again, during the pandemic, the number of male authors has grown faster than the number of female authors, both in absolute terms and as a percent change. 
 
 The same data, but in tabular form:
 
-``` r
+```{r Early 2020 arXiv table}
 #Or in tabular form
 colnames(arxiv.long) <- c("Dates", "Gender", "Number of arXiv preprint authors by gender")
 kable(arxiv.long[,1:3])
 ```
 
-| Dates                       | Gender | Number of arXiv preprint authors by gender |
-| :-------------------------- | :----- | -----------------------------------------: |
-| January 1-February 29, 2020 | Female |                                      11852 |
-| March 1-April 30, 2020      | Female |                                      14122 |
-| May 1-June 30, 2020         | Female |                                      15038 |
-| January 1-February 29, 2020 | Male   |                                      44993 |
-| March 1-April 30, 2020      | Male   |                                      54056 |
-| May 1-June 30, 2020         | Male   |                                      58763 |
-
-Compared to January and February, 2020, arXiv preprints in May and June,
-2020 had over 10000 more male authors, while female authors increased by
-about 3200 over the same
-period.
+Compared to January and February, 2020, arXiv preprints in May and June, 2020 had over 10000 more male authors, while female authors increased by about 3200 over the same period. 
 
 ### Comparing single-authored arXiv preprint submissions in the months before and during COVID-19 pandemic, by gender
 
-Again, what about for sole authorships? How does early 2020 compare to
-during the
-pandemic?
+Again, what about for sole authorships? How does early 2020 compare to during the pandemic?
 
-``` r
+```{r Early 2020 arXiv sole author analysis, fig.height=4, fig.width=8, message=FALSE, warning=FALSE, dpi=300}
 arxiv.sole <- as.data.frame(ungroup(subset(df.all2020, as.Date(submitted) >= "2020-01-01" & as.Date(submitted) <= "2020-06-30" & author.n == 1) %>% group_by(COVID) %>% summarize(female.n=sum(female.n, na.rm=TRUE), male.n=sum(male.n, na.rm=TRUE)))) #Summarize by month
 arxiv.sole.long <- gather(arxiv.sole, gender, n, female.n:male.n) #Make wide data long
 arxiv.sole.long$gender <- as.factor(arxiv.sole.long$gender) #Make sure gender is a factor
@@ -331,42 +310,27 @@ p4 <- ggplot(data=arxiv.sole.long, aes(fill=COVID, y=n, x=gender))+geom_bar(posi
 p4
 ```
 
-![](README_files/figure-gfm/Early%202020%20arXiv%20sole%20author%20analysis-1.png)<!-- -->
-
-Again, there is a bigger uptick in male than female sole-authorships
-during the pandemic, and the difference is larger than in the full
-dataset, which is dominate by multi-authored papers.
+Again, there is a bigger uptick in male than female sole-authorships during the pandemic, and the difference is larger than in the full dataset, which is dominate by multi-authored papers. 
 
 The same data, but in tabular form:
 
-``` r
+```{r Early 2020 sole authors arXiv table}
 #Or in tabular form
 colnames(arxiv.sole.long) <- c("Dates", "Gender", "Number of single-authored arXiv preprints, by gender")
 kable(arxiv.sole.long[,1:3])
 ```
 
-| Dates                       | Gender | Number of single-authored arXiv preprints, by gender |
-| :-------------------------- | :----- | ---------------------------------------------------: |
-| January 1-February 29, 2020 | Female |                                                  382 |
-| March 1-April 30, 2020      | Female |                                                  393 |
-| May 1-June 30, 2020         | Female |                                                  384 |
-| January 1-February 29, 2020 | Male   |                                                 2214 |
-| March 1-April 30, 2020      | Male   |                                                 2370 |
-| May 1-June 30, 2020         | Male   |                                                 2613 |
-
 ## bioRxiv submissions
 
-# Not updated yet\! (Nothing new since end of April)
+# Not updated yet! (Nothing new since end of April)
 
-Next, I scraped submission data from bioRxiv, the main preprint server
-for biology. I used the rbiorxiv package, see:
+Next, I scraped submission data from bioRxiv, the main preprint server for biology. I used the rbiorxiv package, see:
 
-Fraser, N (2020). rbiorxiv. R package,
-<https://github.com/nicholasmfraser/rbiorxiv>
+Fraser, N (2020). rbiorxiv. R package, https://github.com/nicholasmfraser/rbiorxiv
 
 I scraped the same date ranges as for the arXiv analysis, above.
 
-``` r
+```{r Scrape biorxiv, message=FALSE, warning=FALSE, eval=FALSE}
 #Not run
 #Get all submissions between Jan 1, 2020 and April 22, 2020
 df.b.2020 <- biorxiv_content(from = "2020-01-01", to = "2020-04-22", limit = "*", format = "df")
@@ -381,11 +345,9 @@ write.csv(df.b.2019, "Data/biorxiv_2019_data.csv")
 write.csv(df.b.2020.update, "Data/biorxiv_2020_update_data.csv")
 ```
 
-I inferred the gender of corresponding authors of bioRxiv preprints, as
-above. Note that the bioRxiv API only returns first names for
-corresponding authors, and not for all authors. (Unfortunately.)
+I inferred the gender of corresponding authors of bioRxiv preprints, as above. Note that the bioRxiv API only returns first names for corresponding authors, and not for all authors. (Unfortunately.)
 
-``` r
+```{r bioRxiv gender, message=FALSE, warning=FALSE}
 df.b.2019 <- read.csv("Data/biorxiv_2019_data.csv")
 df.b.all2020 <- read.csv("Data/biorxiv_2020_data.csv")
 df.b.2020.update <- read.csv("Data/biorxiv_2020_update_data.csv")
@@ -416,7 +378,7 @@ df.b.all2020 <- df.b.all2020[!duplicated(df.b.all2020),] #Remove duplicated rows
 
 Next I calculated some summary statistics for the bioRxiv dataset.
 
-``` r
+```{r Summary statistics for biorxiv, message=FALSE, warning=FALSE}
 all.biorxiv <- rbind(df.b.all2020, df.b.full) #Combine datasets
 total.b.preprints <- length(all.biorxiv$doi) #Total number of preprints
 total.b.authors.with.gender <- length(all.biorxiv[!is.na(all.biorxiv$gender), "gender"]) #Total number of authors with gender predicted
@@ -426,22 +388,15 @@ year.biorxiv.preprints <- length(df.b.full[, "doi"]) #Preprints for just year-ov
 year.biorxiv.authors <- length(df.b.full[!is.na(df.b.full$gender), "gender"]) #Preprint authors with gender for year-over-year comparison
 ```
 
-There are 24188 preprints in the full bioRxiv dataset, each with a
-single corresponding author. I inferred the gender of 19378
-corresponding authors, or 80.1%, with the rest omitted from subsequent
-analyses.
+There are `r total.b.preprints` preprints in the full bioRxiv dataset, each with a single corresponding author. I inferred the gender of `r total.b.authors.with.gender` corresponding authors, or `r per.b.gender`%, with the rest omitted from subsequent analyses. 
 
-For just the comparison of March 15-April 15, 2020 with the same dates
-in 2019, there are 7818 bioRxiv preprints with 6333 corresponding
-authors for whom I inferred
-gender.
+For just the comparison of March 15-April 15, 2020 with the same dates in 2019, there are `r year.biorxiv.preprints` bioRxiv preprints with `r year.biorxiv.authors` corresponding authors for whom I inferred gender.
 
 ### Comparing bioRxiv preprint authors between Mar/Apr 2019 and Mar/Apr 2020, by gender
 
-How many male and female corresponding authors were there on bioRxiv
-preprints between Mar/Apr 2019 and 2020?
+How many male and female corresponding authors were there on bioRxiv preprints between Mar/Apr 2019 and 2020?
 
-``` r
+```{r Visualize bioRxiv 2019 versus 2020 data,  message=FALSE, warning=FALSE, fig.width=8, fig.height=4, dpi=300}
 df.b.full$year <- as.factor(year(as.Date(df.b.full$date))) #Extract year
 biorxiv.yr <- as.data.frame(ungroup(subset(df.b.full, !is.na(gender)) %>% group_by(year, gender) %>% summarize(n=n()))) #Summarize by year
 biorxiv.yr$gender <- as.factor(biorxiv.yr$gender) #Make sure gender is a factor
@@ -452,43 +407,24 @@ biorxiv.yr.wide$per.dif.1920 <- ((biorxiv.yr.wide$`2020`-biorxiv.yr.wide$`2019`)
 #Make figure for 2019 versus 2020 comparison
 p5 <- ggplot(data=biorxiv.yr, aes(fill=year, y=n, x=as.factor(gender)))+geom_bar(position="dodge",stat="identity")+theme_cowplot()+xlab("Gender")+ylab("Authors (no.)")+labs(fill="Year")+labs(fill="Date range")+scale_fill_manual(values = colours1, labels=yr.labels)+ggtitle("bioRxiv")+ggplot2::annotate("text", x=c(1,2),  y=c(1130,2680), label = paste0("+", round(biorxiv.yr.wide$per.dif.1920), "%"))+theme(legend.position="top", legend.justification="left", legend.title=element_blank(), legend.text=element_text(size=fontsize))+guides(fill = guide_legend(nrow=2))+labs(title="bioRxiv", subtitle="corresponding authors")
 p5
-```
 
-![](README_files/figure-gfm/Visualize%20bioRxiv%202019%20versus%202020%20data-1.png)<!-- -->
-
-``` r
 p6 <- plot_grid(p1, p2, p5, nrow=1, align='hv', axis='lb') #Combine into part of a single figure
 ```
 
-The same data in tabular
-form:
+The same data in tabular form:
 
-``` r
+```{r biorxiv year-over-year table}
 colnames(biorxiv.yr) <- c("Year", "Gender", "Number of bioRxiv preprints submitted, by gender of corresponding author")
 kable(biorxiv.yr)
 ```
 
-| Year | Gender | Number of bioRxiv preprints submitted, by gender of corresponding author |
-| :--- | :----- | -----------------------------------------------------------------------: |
-| 2019 | Female |                                                                      803 |
-| 2019 | Male   |                                                                     2006 |
-| 2020 | Female |                                                                      997 |
-| 2020 | Male   |                                                                     2527 |
-
-The gender difference for corresponding authors of bioRxiv preprints is
-more modest than in the arXiv dataset, but the number of male
-corresponding authors of bioRxiv preprints has still increased more than
-the number of female corresponding authors of bioRxiv preprints, again
-both as a percent change and in absolute
-terms.
+The gender difference for corresponding authors of bioRxiv preprints is more modest than in the arXiv dataset, but the number of male corresponding authors of bioRxiv preprints has still increased more than the number of female corresponding authors of bioRxiv preprints, again both as a percent change and in absolute terms.
 
 ### Comparing bioRxiv preprint submissions in the months before and during COVID-19 pandemic, by gender
 
-As for arXiv submissions, I also compared bioRxiv submissions across
-months for early
-2020.
+As for arXiv submissions, I also compared bioRxiv submissions across months for early 2020. 
 
-``` r
+```{r Visualize bioRxiv 2020 data,  message=FALSE, warning=FALSE, fig.width=8, fig.height=4, dpi=300}
 df.b.all2020$COVID <- ifelse(as.Date(df.b.all2020$date) < start.date, "January 1-February 29, 2020", "March 1-April 30, 2020") #Classify dates as COVID or not
 biorxiv <- as.data.frame(ungroup(subset(df.b.all2020, as.Date(date) >= "2020-01-01" & as.Date(date) <= "2020-04-30" & !is.na(gender)) %>% group_by(COVID,gender) %>% summarize(n=n()))) #Summarize by month
 biorxiv$gender <- as.factor(biorxiv$gender) #Make sure gender is a factor
@@ -502,69 +438,33 @@ biorxiv$x <- c(1,2,1,2) #x coodinates for figure text
 #Make figure
 p7 <- ggplot(data=biorxiv, aes(fill=COVID, y=n, x=gender))+geom_bar(position="dodge", stat="identity")+theme_cowplot()+ggtitle("bioRxiv")+xlab("Gender")+ylab("Authors (no.)")+labs(fill="Date range")+scale_fill_manual(values = colours2, labels=m.labels)+theme(legend.position="top", legend.justification="left", legend.title=element_blank(), legend.text=element_text(size=fontsize))+geom_text(aes(x=x,y=y, label=paste0("+", round(per), "%")))+labs(title="bioRxiv", subtitle="corresponding authors")+guides(fill=guide_legend(nrow=2))
 p7
-```
 
-![](README_files/figure-gfm/Visualize%20bioRxiv%202020%20data-1.png)<!-- -->
-
-``` r
 p8 <- plot_grid(p3, p4, p7, nrow=1, align='hv', axis='lb') #Combine into part of a single figure
 ```
 
-Again, the number of male corresponding authors is growing faster than
-the number of female corresponding authors, comparing just before to
-during the pandemic.
+Again, the number of male corresponding authors is growing faster than the number of female corresponding authors, comparing just before to during the pandemic.
 
 The same data, but in tabular form:
 
-``` r
+```{r Early 2020 bioRxiv table}
 #Or in tabular form
 colnames(biorxiv) <- c("Dates", "Gender", "Number of arXiv preprint authors by gender")
 kable(biorxiv[,1:3])
 ```
 
-| Dates                       | Gender | Number of arXiv preprint authors by gender |
-| :-------------------------- | :----- | -----------------------------------------: |
-| January 1-February 29, 2020 | Female |                                       1761 |
-| January 1-February 29, 2020 | Male   |                                       4118 |
-| March 1-April 30, 2020      | Female |                                       2113 |
-| March 1-April 30, 2020      | Male   |                                       5053 |
+Finally, I put it all together in a single figure. 
 
-Finally, I put it all together in a single figure.
-
-``` r
+```{r, Combine visualizations, message=FALSE, warning=FALSE, fig.width=16, fig.height=16, dpi=300}
 p9 <- plot_grid(p6, p8, nrow=2, align = 'v', axis='l')
 p9 #Omnibus figure
-```
 
-![](README_files/figure-gfm/Combine%20visualizations-1.png)<!-- -->
-
-``` r
 save_plot("figure.png", p9, base_height=8, base_width=8, dpi=600)
 ```
 
-Throughout this analysis, effects are likely conservative because many
-preprints describe research completed months ago, long before the
-COVID-19 pandemic. Furthermore, it is important to note that gender is
-not perfectly predictive of increased caregiving demands during the
-pandemic; some male academics are primary caregivers for their children,
-and many female academics do not have children at home. And, of course,
-children are not the only people who may need more care than usual
-during COVID-19. Furthermore, I am assuming that gender differences in
-caregiving explain the patterns, but there may also be other mechanisms
-at work. For example, perhaps there has been a surge in preprints from
-some fields, and those fields are more male-dominated.
+Throughout this analysis, effects are likely conservative because many preprints describe research completed months ago, long before the COVID-19 pandemic. Furthermore, it is important to note that gender is not perfectly predictive of increased caregiving demands during the pandemic; some male academics are primary caregivers for their children, and many female academics do not have children at home. And, of course, children are not the only people who may need more care than usual during COVID-19. Furthermore, I am assuming that gender differences in caregiving explain the patterns, but there may also be other mechanisms at work. For example, perhaps there has been a surge in preprints from some fields, and those fields are more male-dominated.  
 
-Nonetheless, the trends in both preprint servers are consistent with the
-hypothesis that the pandemic is disproportionately hurting the
-productivity of female scholars. How long this effect will persist, and
-what its downstream consequences might be for journal publications and
-academic careers, are open questions. This analysis could also be
-extended to examine the effects of author order, field, and researcher
-institution or country, or to other preprint servers, none of which I
-have done.
+Nonetheless, the trends in both preprint servers are consistent with the hypothesis that the pandemic is disproportionately hurting the productivity of female scholars. How long this effect will persist, and what its downstream consequences might be for journal publications and academic careers, are open questions. This analysis could also be extended to examine the effects of author order, field, and researcher institution or country, or to other preprint servers, none of which I have done. 
 
-In summary, in a ‘publish or perish’ world, it seems this pandemic could
-be setting back the hard-won progress of women in STEM.
+In summary, in a ‘publish or perish’ world, it seems this pandemic could be setting back the hard-won progress of women in STEM.
 
-Interested in collaborating? Please get in touch with me at
-m.frederickson(at)utoronto(dot)ca
+Interested in collaborating? Please get in touch with me at m.frederickson(at)utoronto(dot)ca
