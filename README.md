@@ -356,8 +356,6 @@ kable(arxiv.sole.long[,1:3])
 
 ## bioRxiv submissions
 
-# Not updated yet\! (Nothing new since end of April)
-
 Next, I scraped submission data from bioRxiv, the main preprint server
 for biology. I used the rbiorxiv package, see:
 
@@ -379,6 +377,14 @@ df.b.2020.update <- biorxiv_content(from = "2020-04-22", to = "2020-04-30", limi
 write.csv(df.b.2020, "Data/biorxiv_2020_data.csv")
 write.csv(df.b.2019, "Data/biorxiv_2019_data.csv")
 write.csv(df.b.2020.update, "Data/biorxiv_2020_update_data.csv")
+
+#Update with May 1 to June 30, 2020 data
+df.b.2020.may <- biorxiv_content(from = "2020-05-01", to = "2020-05-15", limit = "*", format = "df")
+df.b.2020.may2 <- biorxiv_content(from = "2020-05-16", to = "2020-05-31", limit = "*", format = "df")
+df.b.2020.june <- biorxiv_content(from = "2020-06-01", to = "2020-06-15", limit = "*", format = "df")
+df.b.2020.june2 <- biorxiv_content(from = "2020-06-16", to = "2020-06-30", limit = "*", format = "df")
+df.b.2020.mayjune <- rbind(df.b.2020.may, df.b.2020.may2, df.b.2020.june, df.b.2020.june2)
+write.csv(df.b.2020.mayjune, "Data/biorxiv_2020_MayJune_data.csv")
 ```
 
 I inferred the gender of corresponding authors of bioRxiv preprints, as
@@ -389,9 +395,10 @@ corresponding authors, and not for all authors. (Unfortunately.)
 df.b.2019 <- read.csv("Data/biorxiv_2019_data.csv")
 df.b.all2020 <- read.csv("Data/biorxiv_2020_data.csv")
 df.b.2020.update <- read.csv("Data/biorxiv_2020_update_data.csv")
+df.b.2020.mayjune <- read.csv("Data/biorxiv_2020_MayJune_data.csv")
 
 df.b.full <- rbind(df.b.2019, subset(df.b.all2020, as.Date(date) >= "2020-03-15" & as.Date(date) <= "2020-04-15")) #Make year comparison, subsetting 2020 data to just March 15 to April 15
-df.b.all2020 <- rbind(df.b.all2020, df.b.2020.update) #Make early 2020 dataset
+df.b.all2020 <- rbind(df.b.all2020, df.b.2020.update, df.b.2020.mayjune) #Make early 2020 dataset
 
 df.b.full$cor.author.first.name <- sapply(strsplit(as.character(df.b.full$author_corresponding), " "), head, 1) #Extract first names
 df.b.all2020$cor.author.first.name <- sapply(strsplit(as.character(df.b.all2020$author_corresponding), " "), head, 1) #Extract first names
@@ -426,9 +433,9 @@ year.biorxiv.preprints <- length(df.b.full[, "doi"]) #Preprints for just year-ov
 year.biorxiv.authors <- length(df.b.full[!is.na(df.b.full$gender), "gender"]) #Preprint authors with gender for year-over-year comparison
 ```
 
-There are 24188 preprints in the full bioRxiv dataset, each with a
-single corresponding author. I inferred the gender of 19378
-corresponding authors, or 80.1%, with the rest omitted from subsequent
+There are 34492 preprints in the full bioRxiv dataset, each with a
+single corresponding author. I inferred the gender of 27721
+corresponding authors, or 80.4%, with the rest omitted from subsequent
 analyses.
 
 For just the comparison of March 15-April 15, 2020 with the same dates
@@ -489,18 +496,18 @@ months for early
 2020.
 
 ``` r
-df.b.all2020$COVID <- ifelse(as.Date(df.b.all2020$date) < start.date, "January 1-February 29, 2020", "March 1-April 30, 2020") #Classify dates as COVID or not
-biorxiv <- as.data.frame(ungroup(subset(df.b.all2020, as.Date(date) >= "2020-01-01" & as.Date(date) <= "2020-04-30" & !is.na(gender)) %>% group_by(COVID,gender) %>% summarize(n=n()))) #Summarize by month
+df.b.all2020$COVID <- ifelse(as.Date(df.b.all2020$date) < start.date, "January 1-February 29, 2020", ifelse(as.Date(df.b.all2020$date) < "2020-05-01", "March 1-April 30, 2020", "May 1-June 30, 2020")) #Classify dates as COVID or not
+biorxiv <- as.data.frame(ungroup(subset(df.b.all2020, as.Date(date) >= "2020-01-01" & as.Date(date) <= "2020-06-30" & !is.na(gender)) %>% group_by(COVID,gender) %>% summarize(n=n()))) #Summarize by month
 biorxiv$gender <- as.factor(biorxiv$gender) #Make sure gender is a factor
 levels(biorxiv$gender) <- c("Female", "Male") #Capitalize genders
-biorxiv$per <- c(biorxiv[3,3]/biorxiv[1,3], biorxiv[4,3]/biorxiv[2,3],biorxiv[3,3]/biorxiv[1,3], biorxiv[4,3]/biorxiv[2,3]) #Calculate percent change
+biorxiv$per <- c(biorxiv[5,3]/biorxiv[1,3], biorxiv[6,3]/biorxiv[2,3],biorxiv[5,3]/biorxiv[1,3], biorxiv[6,3]/biorxiv[2,3],biorxiv[5,3]/biorxiv[1,3], biorxiv[6,3]/biorxiv[2,3]) #Calculate percent change
 biorxiv$per <- biorxiv$per*100-100 #Make it actually a percent
 bump = 300 #For figure annotation
-biorxiv$y <- c((biorxiv[3,3]+bump), (biorxiv[4,3]+bump), (biorxiv[3,3]+bump), (biorxiv[4,3]+bump)) #y coordinates for figure text
-biorxiv$x <- c(1,2,1,2) #x coodinates for figure text
+biorxiv$y <- c((biorxiv[5,3]+bump), (biorxiv[6,3]+bump), (biorxiv[5,3]+bump), (biorxiv[6,3]+bump), (biorxiv[5,3]+bump), (biorxiv[6,3]+bump)) #y coordinates for figure text
+biorxiv$x <- c(1.3,2.3,1.3,2.3,1.3,2.3) #x coodinates for figure text
 
 #Make figure
-p7 <- ggplot(data=biorxiv, aes(fill=COVID, y=n, x=gender))+geom_bar(position="dodge", stat="identity")+theme_cowplot()+ggtitle("bioRxiv")+xlab("Gender")+ylab("Authors (no.)")+labs(fill="Date range")+scale_fill_manual(values = colours2, labels=m.labels)+theme(legend.position="top", legend.justification="left", legend.title=element_blank(), legend.text=element_text(size=fontsize))+geom_text(aes(x=x,y=y, label=paste0("+", round(per), "%")))+labs(title="bioRxiv", subtitle="corresponding authors")+guides(fill=guide_legend(nrow=2))
+p7 <- ggplot(data=biorxiv, aes(fill=COVID, y=n, x=gender))+geom_bar(position="dodge", stat="identity")+theme_cowplot()+ggtitle("bioRxiv")+xlab("Gender")+ylab("Authors (no.)")+labs(fill="Date range")+scale_fill_manual(values = colours2, labels=m.labels)+theme(legend.position="top", legend.justification="left", legend.title=element_blank(), legend.text=element_text(size=fontsize))+geom_text(aes(x=x,y=y, label=paste0("+", round(per), "%")))+labs(title="bioRxiv", subtitle="corresponding authors")+guides(fill=guide_legend(nrow=3))
 p7
 ```
 
@@ -528,6 +535,8 @@ kable(biorxiv[,1:3])
 | January 1-February 29, 2020 | Male   |                                       4118 |
 | March 1-April 30, 2020      | Female |                                       2113 |
 | March 1-April 30, 2020      | Male   |                                       5053 |
+| May 1-June 30, 2020         | Female |                                       2443 |
+| May 1-June 30, 2020         | Male   |                                       5900 |
 
 Finally, I put it all together in a single figure.
 
@@ -539,32 +548,12 @@ p9 #Omnibus figure
 ![](README_files/figure-gfm/Combine%20visualizations-1.png)<!-- -->
 
 ``` r
-save_plot("figure.png", p9, base_height=8, base_width=8, dpi=600)
+p8 #Updated figure
 ```
 
-Throughout this analysis, effects are likely conservative because many
-preprints describe research completed months ago, long before the
-COVID-19 pandemic. Furthermore, it is important to note that gender is
-not perfectly predictive of increased caregiving demands during the
-pandemic; some male academics are primary caregivers for their children,
-and many female academics do not have children at home. And, of course,
-children are not the only people who may need more care than usual
-during COVID-19. Furthermore, I am assuming that gender differences in
-caregiving explain the patterns, but there may also be other mechanisms
-at work. For example, perhaps there has been a surge in preprints from
-some fields, and those fields are more male-dominated.
+![](README_files/figure-gfm/Combine%20visualizations-2.png)<!-- -->
 
-Nonetheless, the trends in both preprint servers are consistent with the
-hypothesis that the pandemic is disproportionately hurting the
-productivity of female scholars. How long this effect will persist, and
-what its downstream consequences might be for journal publications and
-academic careers, are open questions. This analysis could also be
-extended to examine the effects of author order, field, and researcher
-institution or country, or to other preprint servers, none of which I
-have done.
-
-In summary, in a ‘publish or perish’ world, it seems this pandemic could
-be setting back the hard-won progress of women in STEM.
-
-Interested in collaborating? Please get in touch with me at
-m.frederickson(at)utoronto(dot)ca
+``` r
+save_plot("figure.png", p9, base_height=8, base_width=8, dpi=600)
+save_plot("updated_figure.png", p8, base_height=4, base_width=8, dpi=600)
+```
