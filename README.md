@@ -18,9 +18,9 @@ library(knitr)
 library(cowplot)
 library(gender)
 library(aRxiv)
-#install.packages("devtools")
-#devtools::install_github("nicholasmfraser/rbiorxiv")
-library(rbiorxiv) #Need to update/install new copy
+#install.packages("devtools") 
+#devtools::install_github("nicholasmfraser/rbiorxiv") 
+library(rbiorxiv) 
 library(lubridate)
 library(anytime)
 ```
@@ -179,7 +179,7 @@ colours1 = c("#f4a582","#ca0020") #Set colours
 fontsize = 10
 
 #Make figure comparing 2020 to 2019
-p1 <- ggplot(data=all.long, aes(fill=as.factor(year), y=number, x=Gender))+geom_bar(position="dodge", stat="identity")+theme_cowplot()+xlab("Gender")+ylab("Authors (no.)")+labs(fill="Year")+scale_fill_manual(values=colours1, labels=yr.labels)+theme(legend.position = "top", legend.justification="left", legend.title = element_blank(), legend.text = element_text(size=fontsize))+ggplot2::annotate("text", x=c(1, 2),  y=c(9000,29000), label = paste0("+", round(all.t$per.dif.1920[1:2], 1), "%"))+labs(title="arXiv", subtitle="all authors")+guides(fill=guide_legend(nrow=2))
+p1 <- ggplot(data=all.long, aes(fill=as.factor(year), y=number, x=Gender))+geom_bar(position="dodge", stat="identity")+theme_cowplot()+xlab("Gender")+ylab("Authors (no.)")+labs(fill="Year")+scale_fill_manual(values=colours1, labels=yr.labels)+theme(legend.position = "top", legend.justification="left", legend.title = element_blank(), legend.text = element_text(size=fontsize))+ggplot2::annotate("text", x=c(1, 2),  y=c(9000,29000), label = paste0("+", round(all.t$per.dif.1920[1:2], 1), "%"))+labs(title="arXiv", subtitle="all authors")+guides(fill=guide_legend(nrow=2))+scale_x_discrete(labels=c("Women", "Men"))
 p1 
 ```
 
@@ -221,7 +221,7 @@ colnames(sole.authors.t) <- c("2019", "2020") #Fix column names
 sole.authors.t$per.dif.1920 <- ((sole.authors.t$`2020`-sole.authors.t$`2019`)/(sole.authors.t$`2019`))*100 #Calculate percent change, 2020 over 2019
 
 #Make figure for single-authored preprints
-p2 <- ggplot(data=sole.long, aes(fill=as.factor(year), y=number, x=Gender))+geom_bar(position="dodge", stat="identity")+theme_cowplot()+xlab("Gender")+ylab("Authors (no.)")+labs(fill="Year")+scale_fill_manual(values = colours1, labels=yr.labels)+theme(legend.position = "top", legend.justification="left", legend.title = element_blank())+ggplot2::annotate("text", x=c(1, 2),  y=c(270,1350), label = paste0("+", round(sole.authors.t$per.dif.1920[1:2], 1), "%"))+theme(legend.text=element_text(size=fontsize))+labs(title="arXiv", subtitle = "sole authors")+guides(fill=guide_legend(nrow=2))
+p2 <- ggplot(data=sole.long, aes(fill=as.factor(year), y=number, x=Gender))+geom_bar(position="dodge", stat="identity")+theme_cowplot()+xlab("Gender")+ylab("Authors (no.)")+labs(fill="Year")+scale_fill_manual(values = colours1, labels=yr.labels)+theme(legend.position = "top", legend.justification="left", legend.title = element_blank())+ggplot2::annotate("text", x=c(1, 2),  y=c(270,1350), label = paste0("+", round(sole.authors.t$per.dif.1920[1:2], 1), "%"))+theme(legend.text=element_text(size=fontsize))+labs(title="arXiv", subtitle = "sole authors")+guides(fill=guide_legend(nrow=2))+scale_x_discrete(labels=c("Women", "Men"))
 p2
 ```
 
@@ -274,7 +274,7 @@ m.labels=c("Jan. 1 - Feb. 29, 2020", "Mar. 1 - Apr. 30, 2020", "May 1 - Jun. 30,
 colours2 = c("#deebf7", "#9ecae1", "#3182bd") 
 
 #Make figure
-p3 <- ggplot(data=arxiv.long, aes(fill=COVID, y=n, x=gender))+geom_bar(position="dodge", stat="identity")+theme_cowplot()+ggtitle("arXiv")+xlab("Gender")+ylab("Authors (no.)")+labs(fill="Gender")+theme(legend.position="top", legend.title=element_blank(), legend.text=element_text(size=fontsize), legend.justification="left")+geom_text(aes(x=x,y=y, label=paste0("+", round(per), "%")))+scale_fill_manual(values = colours2, labels=m.labels)+labs(title="arXiv", subtitle="all authors")+guides(fill=guide_legend(nrow=3))
+p3 <- ggplot(data=arxiv.long, aes(fill=COVID, y=n, x=gender))+geom_bar(position="dodge", stat="identity")+theme_cowplot()+ggtitle("arXiv")+xlab("Gender")+ylab("Authors (no.)")+labs(fill="Gender")+theme(legend.position="top", legend.title=element_blank(), legend.text=element_text(size=fontsize), legend.justification="left")+geom_text(aes(x=x,y=y, label=paste0("+", round(per), "%")))+scale_fill_manual(values = colours2, labels=m.labels)+labs(title="arXiv", subtitle="all authors")+guides(fill=guide_legend(nrow=3))+scale_x_discrete(labels=c("Women", "Men"))
 p3
 ```
 
@@ -327,7 +327,7 @@ arxiv.sole.long$x <- c(1.3,1.3,1.3,2.3,2.3,2.3) #X coordinates for figure text a
 m.labels=c("Jan. 1 - Feb. 29, 2020", "Mar. 1 - Apr. 30, 2020", "May 1 - June 30, 2020")
 
 #Make figure
-p4 <- ggplot(data=arxiv.sole.long, aes(fill=COVID, y=n, x=gender))+geom_bar(position="dodge", stat="identity")+theme_cowplot()+ggtitle("arXiv")+xlab("Gender")+ylab("Authors (no.)")+labs(fill="Gender")+theme(legend.position="top", legend.title=element_blank(), legend.text=element_text(size=fontsize), legend.justification="left")+geom_text(aes(x=x,y=y, label=paste0("+", round(per,digits=1), "%")))+scale_fill_manual(values = colours2, labels=m.labels)+labs(title="arXiv", subtitle="sole authors")+guides(fill=guide_legend(nrow=3))
+p4 <- ggplot(data=arxiv.sole.long, aes(fill=COVID, y=n, x=gender))+geom_bar(position="dodge", stat="identity")+theme_cowplot()+ggtitle("arXiv")+xlab("Gender")+ylab("Authors (no.)")+labs(fill="Gender")+theme(legend.position="top", legend.title=element_blank(), legend.text=element_text(size=fontsize), legend.justification="left")+geom_text(aes(x=x,y=y, label=paste0("+", round(per,digits=1), "%")))+scale_fill_manual(values = colours2, labels=m.labels)+labs(title="arXiv", subtitle="sole authors")+guides(fill=guide_legend(nrow=3))+scale_x_discrete(labels=c("Women", "Men"))
 p4
 ```
 
@@ -457,7 +457,7 @@ biorxiv.yr.wide <- spread(biorxiv.yr, year, n) #Make long data wide
 biorxiv.yr.wide$per.dif.1920 <- ((biorxiv.yr.wide$`2020`-biorxiv.yr.wide$`2019`)/biorxiv.yr.wide$`2019`)*100 #Calculate percent change, 2019 to 2020
 
 #Make figure for 2019 versus 2020 comparison
-p5 <- ggplot(data=biorxiv.yr, aes(fill=year, y=n, x=as.factor(gender)))+geom_bar(position="dodge",stat="identity")+theme_cowplot()+xlab("Gender")+ylab("Authors (no.)")+labs(fill="Year")+labs(fill="Date range")+scale_fill_manual(values = colours1, labels=yr.labels)+ggtitle("bioRxiv")+ggplot2::annotate("text", x=c(1,2),  y=c(1130,2680), label = paste0("+", round(biorxiv.yr.wide$per.dif.1920), "%"))+theme(legend.position="top", legend.justification="left", legend.title=element_blank(), legend.text=element_text(size=fontsize))+guides(fill = guide_legend(nrow=2))+labs(title="bioRxiv", subtitle="corresponding authors")
+p5 <- ggplot(data=biorxiv.yr, aes(fill=year, y=n, x=as.factor(gender)))+geom_bar(position="dodge",stat="identity")+theme_cowplot()+xlab("Gender")+ylab("Authors (no.)")+labs(fill="Year")+labs(fill="Date range")+scale_fill_manual(values = colours1, labels=yr.labels)+ggtitle("bioRxiv")+ggplot2::annotate("text", x=c(1,2),  y=c(1130,2680), label = paste0("+", round(biorxiv.yr.wide$per.dif.1920), "%"))+theme(legend.position="top", legend.justification="left", legend.title=element_blank(), legend.text=element_text(size=fontsize))+guides(fill = guide_legend(nrow=2))+labs(title="bioRxiv", subtitle="corresponding authors")+scale_x_discrete(labels=c("Women", "Men"))
 p5
 ```
 
@@ -507,7 +507,7 @@ biorxiv$y <- c((biorxiv[5,3]+bump), (biorxiv[6,3]+bump), (biorxiv[5,3]+bump), (b
 biorxiv$x <- c(1.3,2.3,1.3,2.3,1.3,2.3) #x coodinates for figure text
 
 #Make figure
-p7 <- ggplot(data=biorxiv, aes(fill=COVID, y=n, x=gender))+geom_bar(position="dodge", stat="identity")+theme_cowplot()+ggtitle("bioRxiv")+xlab("Gender")+ylab("Authors (no.)")+labs(fill="Date range")+scale_fill_manual(values = colours2, labels=m.labels)+theme(legend.position="top", legend.justification="left", legend.title=element_blank(), legend.text=element_text(size=fontsize))+geom_text(aes(x=x,y=y, label=paste0("+", round(per), "%")))+labs(title="bioRxiv", subtitle="corresponding authors")+guides(fill=guide_legend(nrow=3))
+p7 <- ggplot(data=biorxiv, aes(fill=COVID, y=n, x=gender))+geom_bar(position="dodge", stat="identity")+theme_cowplot()+ggtitle("bioRxiv")+xlab("Gender")+ylab("Authors (no.)")+labs(fill="Date range")+scale_fill_manual(values = colours2, labels=m.labels)+theme(legend.position="top", legend.justification="left", legend.title=element_blank(), legend.text=element_text(size=fontsize))+geom_text(aes(x=x,y=y, label=paste0("+", round(per), "%")))+labs(title="bioRxiv", subtitle="corresponding authors")+guides(fill=guide_legend(nrow=3))+scale_x_discrete(labels=c("Women", "Men"))
 p7
 ```
 
@@ -556,4 +556,15 @@ p8 #Updated figure
 ``` r
 save_plot("figure.png", p9, base_height=8, base_width=8, dpi=600)
 save_plot("updated_figure.png", p8, base_height=4, base_width=8, dpi=600)
+```
+
+## Tracking individual authors over time
+
+``` r
+split.names.unlist <- function(x){as.data.frame(unlist(strsplit(as.character(x), "|", fixed=TRUE)))} #Function to split strings of author names
+
+arxiv.authors.2020 <- lapply(df.all2020$authors, split.names.unlist)
+arxiv.authors.2020 <- as.data.frame(unlist(arxiv.authors.2020))
+colnames(arxiv.authors.2020) <- c("authors")
+count.arxiv.authors.2020 <- count(arxiv.authors.2020, authors)
 ```
