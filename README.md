@@ -992,16 +992,16 @@ df.b.all2020.output <- as.data.frame(apply(df.b.all2020,2,as.character))
 write.csv(df.b.all2020.output, "Data/biorxiv_full_authors_2020_gender.csv") #Save data
 ```
 
-Next we calculated some summary statistics for the bioRxiv dataset.
+Next we calculated some summary statistics for the bioRxiv
+dataset.
 
 ``` r
-df.b.full <- read.csv("Data/biorxiv_full_authors_gender.csv")
-df.b.all2020 <- read.csv("Data/biorxiv_full_authors_2020_gender.csv")
+df.b.full <- read.csv("~/Dropbox/Megan2020/Pandemic Penalty/biorxiv_full_authors_gender.csv")
+df.b.all2020 <- read.csv("~/Dropbox/Megan2020/Pandemic Penalty/biorxiv_full_authors_2020_gender.csv")
 
 all.biorxiv <- rbind(df.b.all2020, df.b.full) #Combine datasets
 all.biorxiv <- all.biorxiv[!duplicated(all.biorxiv), ] #Remove duplicates
 total.b.preprints <- length(all.biorxiv$doi) #Total number of preprints
-#all.biorxiv$author.n <- str_count(all.biorxiv$authors, pattern = "\\;")+1 #Count author number
 all.biorxiv$authors.with.gender <- all.biorxiv$female.n+all.biorxiv$male.n  
 total.b.authors <- sum(all.biorxiv$author.n) #Total number of authors
 total.b.authors.with.gender <- sum(all.biorxiv$male.n+all.biorxiv$female.n) #Total number of authors with gender inferred
