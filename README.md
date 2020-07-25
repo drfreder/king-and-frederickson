@@ -1014,33 +1014,19 @@ year.biorxiv.authors <- sum(df.b.full[, "male.n"]+df.b.full[, "female.n"]) #Prep
 all.biorxiv$cor <- paste0(word(all.biorxiv$author_corresponding, 1), " ", word(all.biorxiv$author_corresponding, -1))
 all.biorxiv$last <- paste0(word(trimws(all.biorxiv$last.author), 1), " ", word(all.biorxiv$last.author, -1))
 all.biorxiv$cor_is_last <- ifelse(all.biorxiv$author.n > 1, ifelse(as.character(all.biorxiv$cor) == as.character(all.biorxiv$last), TRUE, FALSE), TRUE)
-length(which(all.biorxiv$cor_is_last))
-```
-
-    ## [1] 20045
-
-``` r
 all.biorxiv$first <- paste0(word(trimws(as.character(all.biorxiv$first.author)), 1), " ", word(trimws(all.biorxiv$first.author), -1))
 all.biorxiv$cor_is_first <- ifelse(all.biorxiv$author.n > 1, ifelse(as.character(all.biorxiv$cor) == as.character(all.biorxiv$first), TRUE, FALSE), TRUE)
-length(which(all.biorxiv$cor_is_first))
-```
-
-    ## [1] 9136
-
-``` r
 all.biorxiv$cor_is_mid <- all.biorxiv$cor_is_last == FALSE & all.biorxiv$cor_is_first == FALSE
-
 per.cor.last <- length(which(all.biorxiv$cor_is_last))/(length(which(all.biorxiv$cor_is_last))+length(which(all.biorxiv$cor_is_first)))
 ```
 
-There are 34492 preprints in the full bioRxiv dataset, each with a
-single corresponding author. I inferred the gender of 195204
-corresponding authors, or 75.5%, with the rest omitted from subsequent
-analyses.
+There are 34492 preprints in the full bioRxiv dataset, with a total of
+258715 authors. We inferred the gender of 195204 authors, or 75.5%, with
+the rest omitted from subsequent analyses.
 
 For just the comparison of March 15-April 15, 2020 with the same dates
-in 2019, there are 7818 bioRxiv preprints with 43125 corresponding
-authors for whom I inferred gender.
+in 2019, there are 7818 bioRxiv preprints with 43125 authors for whom we
+inferred gender.
 
 For the sake of interest, 70% of bioRxiv corresponding authors are last
 authors.

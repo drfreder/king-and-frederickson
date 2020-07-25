@@ -737,18 +737,15 @@ year.biorxiv.authors <- sum(df.b.full[, "male.n"]+df.b.full[, "female.n"]) #Prep
 all.biorxiv$cor <- paste0(word(all.biorxiv$author_corresponding, 1), " ", word(all.biorxiv$author_corresponding, -1))
 all.biorxiv$last <- paste0(word(trimws(all.biorxiv$last.author), 1), " ", word(all.biorxiv$last.author, -1))
 all.biorxiv$cor_is_last <- ifelse(all.biorxiv$author.n > 1, ifelse(as.character(all.biorxiv$cor) == as.character(all.biorxiv$last), TRUE, FALSE), TRUE)
-length(which(all.biorxiv$cor_is_last))
 all.biorxiv$first <- paste0(word(trimws(as.character(all.biorxiv$first.author)), 1), " ", word(trimws(all.biorxiv$first.author), -1))
 all.biorxiv$cor_is_first <- ifelse(all.biorxiv$author.n > 1, ifelse(as.character(all.biorxiv$cor) == as.character(all.biorxiv$first), TRUE, FALSE), TRUE)
-length(which(all.biorxiv$cor_is_first))
 all.biorxiv$cor_is_mid <- all.biorxiv$cor_is_last == FALSE & all.biorxiv$cor_is_first == FALSE
-
 per.cor.last <- length(which(all.biorxiv$cor_is_last))/(length(which(all.biorxiv$cor_is_last))+length(which(all.biorxiv$cor_is_first)))
 ```
 
-There are `r total.b.preprints` preprints in the full bioRxiv dataset, each with a single corresponding author. I inferred the gender of `r total.b.authors.with.gender` corresponding authors, or `r per.b.gender`%, with the rest omitted from subsequent analyses. 
+There are `r total.b.preprints` preprints in the full bioRxiv dataset, with a total of `r total.b.authors` authors. We inferred the gender of `r total.b.authors.with.gender` authors, or `r per.b.gender`%, with the rest omitted from subsequent analyses. 
 
-For just the comparison of March 15-April 15, 2020 with the same dates in 2019, there are `r year.biorxiv.preprints` bioRxiv preprints with `r year.biorxiv.authors` corresponding authors for whom I inferred gender.
+For just the comparison of March 15-April 15, 2020 with the same dates in 2019, there are `r year.biorxiv.preprints` bioRxiv preprints with `r year.biorxiv.authors` authors for whom we inferred gender.
 
 For the sake of interest, `r round(per.cor.last, 1)*100`% of bioRxiv corresponding authors are last authors. 
 
