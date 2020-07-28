@@ -149,7 +149,8 @@ for(i in 1:length(df.full$authors)){
 }
 
 #Predict first author gender (includes sole authors)
-df.full$first.author.first.name <- word(df.full$first.author, 1)
+df.full$author.n <- str_count(df.full$authors, pattern = "\\|")+1 #Count author number
+df.full$first.author.first.name <- ifelse(df.full$author.n > 1, word(df.full$first.author, 1), NA)
 gender <- gender(df.full$first.author.first.name, method = "ssa") #Predict gender
 gender <- unique(gender[ , c(1,2,4)])
 getgender <- gender$gender
@@ -166,8 +167,8 @@ names(getgender) <- gender$name
 df.full$last.author.gender <- getgender[df.full$last.author.first.name]
 
 #Count middle authors for each gender
-df.full$female.mid.authors.n <- df.full$female.n - ifelse(df.full$first.author.gender == "female", 1, 0) - ifelse(df.full$last.author.gender == "female", 1, 0)
-df.full$male.mid.authors.n <- df.full$male.n - ifelse(df.full$first.author.gender == "male", 1, 0) - ifelse(df.full$last.author.gender == "male", 1, 0)
+df.full$female.mid.authors.n <- ifelse(df.full$author.n > 1, (df.full$female.n - ifelse(df.full$first.author.gender == "female", 1, 0) - ifelse(df.full$last.author.gender == "female", 1, 0)), 0)
+df.full$male.mid.authors.n <- ifelse(df.full$author.n > 1, (df.full$male.n - ifelse(df.full$first.author.gender == "male", 1, 0) - ifelse(df.full$last.author.gender == "male", 1, 0)), 0)
 
 df.full.output <- as.data.frame(apply(df.full,2,as.character)) 
 write.csv(df.full.output, "Data/arxiv_full_gender.csv") #Save data
@@ -190,6 +191,8 @@ for(i in 1:length(df.all2020$authors)){
   df.all2020$female.n[i] <- sum(as.numeric(str_count(as.character(tmp$gender), pattern = paste(sprintf("\\b%s\\b", "female")))), na.rm=TRUE)
 }
 
+df.all2020$author.n <- str_count(df.all2020$authors, pattern = "\\|")+1 #Count author number
+df.all2020$first.author.first.name <- ifelse(df.all2020$author.n > 1, word(df.all2020$first.author, 1), NA)
 df.all2020$first.author.first.name <- word(df.all2020$first.author, 1)
 gender <- gender(df.all2020$first.author.first.name, method = "ssa") #Predict gender
 gender <- unique(gender[ , c(1,2,4)])
@@ -197,7 +200,6 @@ getgender <- gender$gender
 names(getgender) <- gender$name
 df.all2020$first.author.gender <- getgender[df.all2020$first.author.first.name]
 
-df.all2020$author.n <- str_count(df.all2020$authors, pattern = "\\|")+1 #Count author number
 df.all2020$last.author.first.name <- ifelse(df.all2020$author.n > 1, word(df.all2020$last.author, 1), NA)
 gender <- gender(df.all2020$last.author.first.name, method = "ssa") #Predict gender
 gender <- unique(gender[ , c(1,2,4)])
@@ -205,8 +207,8 @@ getgender <- gender$gender
 names(getgender) <- gender$name
 df.all2020$last.author.gender <- getgender[df.all2020$last.author.first.name]
 
-df.all2020$female.mid.authors.n <- df.all2020$female.n - ifelse(df.all2020$first.author.gender == "female", 1, 0) - ifelse(df.all2020$last.author.gender == "female", 1, 0)
-df.all2020$male.mid.authors.n <- df.all2020$male.n - ifelse(df.all2020$first.author.gender == "male", 1, 0) - ifelse(df.all2020$last.author.gender == "male", 1, 0)
+df.all2020$female.mid.authors.n <- ifelse(df.all2020$author.n > 1, (df.all2020$female.n - ifelse(df.all2020$first.author.gender == "female", 1, 0) - ifelse(df.all2020$last.author.gender == "female", 1, 0)), 0)
+df.all2020$male.mid.authors.n <- ifelse(df.all2020$author.n > 1, (df.all2020$male.n - ifelse(df.all2020$first.author.gender == "male", 1, 0) - ifelse(df.all2020$last.author.gender == "male", 1, 0)), 0)
 
 df.all2020.output <- as.data.frame(apply(df.all2020,2,as.character))
 write.csv(df.all2020.output, "Data/arxiv_all2020_gender.csv") #Save data
@@ -288,9 +290,8 @@ first.authors <- subset(df.full, !is.na(first.author.gender)) %>% group_by(year,
 first.authors$per.dif.1920 <- c(first.authors[3,3]/first.authors[1,3],first.authors[4,3]/first.authors[2,3] ,first.authors[3,3]/first.authors[1,3], first.authors[4,3]/first.authors[2,3])
 first.authors$per.dif.1920 <- (as.numeric(first.authors$per.dif.1920)-1)*100 #Calculate percent change, 2020 over 2019
 
-p3 <- ggplot(data=first.authors, aes(fill=as.factor(year), y=n, x=first.author.gender))+geom_bar(position="dodge", stat="identity")+theme_cowplot()+xlab("Gender")+ylab("Authorships (no.)")+labs(fill="Year")+scale_fill_manual(values = colours1, labels=yr.labels)+theme(legend.position = "top", legend.justification="left", legend.title = element_blank())+ggplot2::annotate("text", x=c(1, 2),  y=c(2300,7800), label = paste0("+", round(first.authors$per.dif.1920[1:2], 1), "%"))+theme(legend.text=element_text(size=fontsize))+labs(title="arXiv", subtitle = "first authorships")+guides(fill=guide_legend(nrow=2))+scale_x_discrete(labels=c("Women", "Men"))
+p3 <- ggplot(data=first.authors, aes(fill=as.factor(year), y=n, x=first.author.gender))+geom_bar(position="dodge", stat="identity")+theme_cowplot()+xlab("Gender")+ylab("Authorships (no.)")+labs(fill="Year")+scale_fill_manual(values = colours1, labels=yr.labels)+theme(legend.position = "top", legend.justification="left", legend.title = element_blank())+ggplot2::annotate("text", x=c(1, 2),  y=c(2000,6550), label = paste0("+", round(first.authors$per.dif.1920[1:2], 1), "%"))+theme(legend.text=element_text(size=fontsize))+labs(title="arXiv", subtitle = "first authorships")+guides(fill=guide_legend(nrow=2))+scale_x_discrete(labels=c("Women", "Men"))
 p3
-
 ```
 
 The number of men first authorships has grown only very slightly faster than the number of women first authorships, year-over-year.
@@ -304,7 +305,7 @@ last.authors <- subset(df.full, !is.na(last.author.gender)) %>% group_by(year,la
 last.authors$per.dif.1920 <- c(last.authors[3,3]/last.authors[1,3],last.authors[4,3]/last.authors[2,3] ,last.authors[3,3]/last.authors[1,3], last.authors[4,3]/last.authors[2,3])
 last.authors$per.dif.1920 <- (as.numeric(last.authors$per.dif.1920)-1)*100 #Calculate percent change, 2020 over 2019
 
-p4 <- ggplot(data=last.authors, aes(fill=as.factor(year), y=n, x=last.author.gender))+geom_bar(position="dodge", stat="identity")+theme_cowplot()+xlab("Gender")+ylab("Authorships (no.)")+labs(fill="Year")+scale_fill_manual(values = colours1, labels=yr.labels)+theme(legend.position = "top", legend.justification="left", legend.title = element_blank())+ggplot2::annotate("text", x=c(1, 2),  y=c(1900,7050), label = paste0("+", round(last.authors$per.dif.1920[1:2], 1), "%"))+theme(legend.text=element_text(size=fontsize))+labs(title="arXiv", subtitle = "last authorships")+guides(fill=guide_legend(nrow=2))+scale_x_discrete(labels=c("Women", "Men"))
+p4 <- ggplot(data=last.authors, aes(fill=as.factor(year), y=n, x=last.author.gender))+geom_bar(position="dodge", stat="identity")+theme_cowplot()+xlab("Gender")+ylab("Authorships (no.)")+labs(fill="Year")+scale_fill_manual(values = colours1, labels=yr.labels)+theme(legend.position = "top", legend.justification="left", legend.title = element_blank())+ggplot2::annotate("text", x=c(1, 2),  y=c(1900,7020), label = paste0("+", round(last.authors$per.dif.1920[1:2], 1), "%"))+theme(legend.text=element_text(size=fontsize))+labs(title="arXiv", subtitle = "last authorships")+guides(fill=guide_legend(nrow=2))+scale_x_discrete(labels=c("Women", "Men"))
 p4
 ```
 
@@ -345,7 +346,7 @@ who <- "2020-03-11" #Date the WHO declared COVID-19 a pandemic, for reference
 arxiv.long$gender <- factor(arxiv.long$gender, rev(levels(as.factor(arxiv.long$gender))))
 colours2 = c("#7fbf7b","#af8dc3") #Set colours
 
-p6 <- ggplot(data=subset(arxiv.long, as.Date(week) >= "2020-01-01" & as.Date(week) <= "2020-06-28"), aes(x=as.Date(week), y=n, color=gender, shape=gender))+geom_point(size=2)+geom_smooth(method="lm", se=FALSE)+ylab("Authorships (no.)")+xlab("Date")+theme_cowplot()+scale_color_manual(name="Gender", labels=c("Men", "Women"), values=colours2)+labs(title="arXiv", subtitle="all authorships")+scale_shape_discrete(name="Gender", labels=c("Men", "Women"))+geom_vline(aes(xintercept=as.Date(who)), linetype="dashed")+scale_x_date(date_labels = "%b %Y")+theme(axis.text.x=element_text(angle=60, hjust=1))
+p6 <- ggplot(data=subset(arxiv.long, as.Date(week) >= "2020-01-01" & as.Date(week) <= "2020-06-28"), aes(x=as.Date(week), y=n, color=gender, shape=gender))+geom_point(size=2)+geom_smooth(method="lm", se=FALSE)+ylab("Authorships (no.)")+xlab("Date")+theme_cowplot()+scale_color_manual(name="Gender", labels=c("Men", "Women"), values=colours2)+labs(title="arXiv", subtitle="all authorships")+scale_shape_discrete(name="Gender", labels=c("Men", "Women"))+geom_vline(aes(xintercept=as.Date(who)), linetype="dashed")+scale_x_date(date_labels = "%b %Y")+theme(axis.text.x=element_text(angle=60, hjust=1), legend.position="top")
 p6
 
 #Aggregate data by day for model
@@ -375,7 +376,7 @@ arxiv.sole.long <- gather(arxiv.sole, gender, n, female.n:male.n)
 colnames(arxiv.sole.long) <- c("week", "gender", "n")
 arxiv.sole.long$gender <- factor(arxiv.sole.long$gender, rev(levels(as.factor(arxiv.sole.long$gender))))
 
-p7 <- ggplot(data=subset(arxiv.sole.long, as.Date(week) >= "2020-01-01" & as.Date(week) <= "2020-06-28"), aes(x=as.Date(week), y=n, color=gender, shape=gender))+geom_point(size=2)+geom_smooth(method="lm", se=FALSE)+ylab("Authorships (no.)")+xlab("Date")+theme_cowplot()+scale_color_manual(name="Gender", labels=c("Men", "Women"), values=colours2)+labs(title="arXiv", subtitle="sole authorships")+scale_shape_discrete(name="Gender", labels=c("Men", "Women"))+geom_vline(aes(xintercept=as.Date(who)), linetype="dashed")+scale_x_date(date_labels = "%b %Y")+theme(axis.text.x=element_text(angle=60, hjust=1))
+p7 <- ggplot(data=subset(arxiv.sole.long, as.Date(week) >= "2020-01-01" & as.Date(week) <= "2020-06-28"), aes(x=as.Date(week), y=n, color=gender, shape=gender))+geom_point(size=2)+geom_smooth(method="lm", se=FALSE)+ylab("Authorships (no.)")+xlab("Date")+theme_cowplot()+scale_color_manual(name="Gender", labels=c("Men", "Women"), values=colours2)+labs(title="arXiv", subtitle="sole authorships")+scale_shape_discrete(name="Gender", labels=c("Men", "Women"))+geom_vline(aes(xintercept=as.Date(who)), linetype="dashed")+scale_x_date(date_labels = "%b %Y")+theme(axis.text.x=element_text(angle=60, hjust=1), legend.position="top")
 p7
 
 #Model
@@ -403,7 +404,7 @@ arxiv.first <- as.data.frame(ungroup(subset(df.all2020, as.Date(submitted) >= "2
 colnames(arxiv.first) <- c("week", "gender", "n")
 arxiv.first$gender <- factor(arxiv.first$gender, rev(levels(as.factor(arxiv.first$gender))))
 
-p8 <- ggplot(data=subset(arxiv.first, as.Date(week) >= "2020-01-01" & as.Date(week) <= "2020-06-28"), aes(x=as.Date(week), y=n, color=gender))+geom_point(size=2)+geom_smooth(method="lm", se=FALSE)+ylab("Authorships (no.)")+xlab("Date")+theme_cowplot()+scale_color_manual(name="Gender", labels=c("Men", "Women"), values=colours2)+scale_shape_discrete(name="Gender", labels=c("Men", "Women"))+geom_vline(aes(xintercept=as.Date("2020-03-11")), linetype="dashed")+labs(title="arXiv", subtitle="first authorships")+scale_x_date(date_labels = "%b %Y")+theme(axis.text.x=element_text(angle=60, hjust=1))
+p8 <- ggplot(data=subset(arxiv.first, as.Date(week) >= "2020-01-01" & as.Date(week) <= "2020-06-28"), aes(x=as.Date(week), y=n, color=gender, shape=gender))+geom_point(size=2)+geom_smooth(method="lm", se=FALSE)+ylab("Authorships (no.)")+xlab("Date")+theme_cowplot()+scale_color_manual(name="Gender", labels=c("Men", "Women"), values=colours2)+scale_shape_discrete(name="Gender", labels=c("Men", "Women"))+geom_vline(aes(xintercept=as.Date("2020-03-11")), linetype="dashed")+labs(title="arXiv", subtitle="first authorships")+scale_x_date(date_labels = "%b %Y")+theme(axis.text.x=element_text(angle=60, hjust=1), legend.position="top")
 p8
 
 #Model
@@ -427,7 +428,7 @@ arxiv.last <- as.data.frame(ungroup(subset(df.all2020, as.Date(submitted) >= "20
 colnames(arxiv.last) <- c("week", "gender", "n")
 arxiv.last$gender <- factor(arxiv.last$gender, rev(levels(as.factor(arxiv.last$gender))))
 
-p9 <- ggplot(data=subset(arxiv.last, as.Date(week) >= "2020-01-01" & as.Date(week) <= "2020-06-28"), aes(x=as.Date(week), y=n, color=gender))+geom_point(size=2)+geom_smooth(method="lm", se=FALSE)+ylab("Authorships (no.)")+xlab("Date")+theme_cowplot()+scale_color_manual(name="Gender", labels=c("Men", "Women"), values=colours2)+scale_shape_discrete(name="Gender", labels=c("Men", "Women"))+geom_vline(aes(xintercept=as.Date("2020-03-11")), linetype="dashed")+labs(title="arXiv", subtitle="last authorships")+scale_x_date(date_labels = "%b %Y")+theme(axis.text.x=element_text(angle=60, hjust=1))
+p9 <- ggplot(data=subset(arxiv.last, as.Date(week) >= "2020-01-01" & as.Date(week) <= "2020-06-28"), aes(x=as.Date(week), y=n, color=gender, shape=gender))+geom_point(size=2)+geom_smooth(method="lm", se=FALSE)+ylab("Authorships (no.)")+xlab("Date")+theme_cowplot()+scale_color_manual(name="Gender", labels=c("Men", "Women"), values=colours2)+scale_shape_discrete(name="Gender", labels=c("Men", "Women"))+geom_vline(aes(xintercept=as.Date("2020-03-11")), linetype="dashed")+labs(title="arXiv", subtitle="last authorships")+scale_x_date(date_labels = "%b %Y")+theme(axis.text.x=element_text(angle=60, hjust=1), legend.position="top")
 p9
 
 #Model
@@ -452,7 +453,7 @@ arxiv.middle.long <- gather(arxiv.middle, gender, n, female.n:male.n)
 colnames(arxiv.middle.long) <- c("week", "gender", "n")
 arxiv.middle.long$gender <- factor(arxiv.middle.long$gender, rev(levels(as.factor(arxiv.middle.long$gender))))
 
-p10 <- ggplot(data=subset(arxiv.middle.long, as.Date(week) >= "2020-01-01" & as.Date(week) <= "2020-06-28"), aes(x=as.Date(week), y=n, color=gender, shape=gender))+geom_point(size=2)+geom_smooth(method="lm", se=FALSE)+ylab("Authorships (no.)")+xlab("Date")+theme_cowplot()+scale_color_manual(name="Gender", labels=c("Men", "Women"), values=colours2)+scale_shape_discrete(name="Gender", labels=c("Men", "Women"))+labs(title="arXiv", subtitle="middle authorships")+geom_vline(aes(xintercept=as.Date(who)), linetype="dashed")+scale_x_date(date_labels = "%b %Y")+theme(axis.text.x=element_text(angle=60, hjust=1))
+p10 <- ggplot(data=subset(arxiv.middle.long, as.Date(week) >= "2020-01-01" & as.Date(week) <= "2020-06-28"), aes(x=as.Date(week), y=n, color=gender, shape=gender))+geom_point(size=2)+geom_smooth(method="lm", se=FALSE)+ylab("Authorships (no.)")+xlab("Date")+theme_cowplot()+scale_color_manual(name="Gender", labels=c("Men", "Women"), values=colours2)+scale_shape_discrete(name="Gender", labels=c("Men", "Women"))+labs(title="arXiv", subtitle="middle authorships")+geom_vline(aes(xintercept=as.Date(who)), linetype="dashed")+scale_x_date(date_labels = "%b %Y")+theme(axis.text.x=element_text(angle=60, hjust=1), legend.position="top")
 p10
 
 #Model
@@ -482,7 +483,7 @@ save_plot("year-over-year_arxiv.png", p11, base_height=8, base_width=8, dpi=600)
 p12 <- plot_grid(p6, p7, p8, p9, p10, align='v', axis='l')
 p12
 
-save_plot("early2020_rxiv.png", p12, base_height=8, base_width=14, dpi=600)
+save_plot("early2020_arxiv.png", p12, base_height=8, base_width=14, dpi=600)
 ```
 
 ## bioRxiv submissions
@@ -646,7 +647,8 @@ for(i in 1:length(df.b.full$authors_full)){
 }
 
 #Predict first author gender (includes sole authors)
-df.b.full$first.author.first.name <- word(df.b.full$first.author, 1)
+df.b.full$author.n <- str_count(df.b.full$authors, pattern = "\\;")+1 #Count author number
+df.b.full$first.author.first.name <- ifelse(df.b.full$author.n > 1, word(trimws(as.character(df.b.full$first.author, 1))), NA)
 gender <- gender(df.b.full$first.author.first.name, method = "ssa") #Predict gender
 gender <- unique(gender[ , c(1,2,4)])
 getgender <- gender$gender
@@ -654,7 +656,6 @@ names(getgender) <- gender$name
 df.b.full$first.author.gender <- getgender[df.b.full$first.author.first.name]
 
 #Predict last author gender (omits sole authors)
-df.b.full$author.n <- str_count(df.b.full$authors, pattern = "\\;")+1 #Count author number
 df.b.full$last.author.first.name <- ifelse(df.b.full$author.n > 1, word(trimws(as.character(df.b.full$last.author, 1))), NA)
 gender <- gender(df.b.full$last.author.first.name, method = "ssa") #Predict gender
 gender <- unique(gender[ , c(1,2,4)])
@@ -663,8 +664,8 @@ names(getgender) <- gender$name
 df.b.full$last.author.gender <- getgender[df.b.full$last.author.first.name]
 
 #Count middle authors for each gender
-df.b.full$female.mid.authors.n <- df.b.full$female.n - ifelse(df.b.full$first.author.gender == "female", 1, 0) - ifelse(df.b.full$last.author.gender == "female", 1, 0)
-df.b.full$male.mid.authors.n <- df.b.full$male.n - ifelse(df.b.full$first.author.gender == "male", 1, 0) - ifelse(df.b.full$last.author.gender == "male", 1, 0)
+df.b.full$female.mid.authors.n <- ifelse(df.b.full$author.n > 1, (df.b.full$female.n - ifelse(df.b.full$first.author.gender == "female", 1, 0) - ifelse(df.b.full$last.author.gender == "female", 1, 0)), 0)
+df.b.full$male.mid.authors.n <- ifelse(df.b.full$author.n > 1, (df.b.full$male.n - ifelse(df.b.full$first.author.gender == "male", 1, 0) - ifelse(df.b.full$last.author.gender == "male", 1, 0)), 0)
 
 df.b.full <- df.b.full[!duplicated(df.b.full),] #Remove duplicated rows, if any
 df.b.full.output <- as.data.frame(apply(df.b.full,2,as.character)) 
@@ -689,6 +690,7 @@ for(i in 1:length(df.b.all2020$authors_full)){
 }
 
 #Predict first author gender (includes sole authors)
+df.b.all2020$author.n <- str_count(df.b.all2020$authors, pattern = "\\;")+1 #Count author number
 df.b.all2020$first.author.first.name <- word(df.b.all2020$first.author, 1)
 gender <- gender(df.b.all2020$first.author.first.name, method = "ssa") #Predict gender
 gender <- unique(gender[ , c(1,2,4)])
@@ -697,7 +699,6 @@ names(getgender) <- gender$name
 df.b.all2020$first.author.gender <- getgender[df.b.all2020$first.author.first.name]
 
 #Predict last author gender (omits sole authors)
-df.b.all2020$author.n <- str_count(df.b.all2020$authors, pattern = "\\;")+1 #Count author number
 df.b.all2020$last.author.first.name <- ifelse(df.b.all2020$author.n > 1, word(trimws(as.character(df.b.all2020$last.author, 1))), NA)
 gender <- gender(df.b.all2020$last.author.first.name, method = "ssa") #Predict gender
 gender <- unique(gender[ , c(1,2,4)])
@@ -706,13 +707,12 @@ names(getgender) <- gender$name
 df.b.all2020$last.author.gender <- getgender[df.b.all2020$last.author.first.name]
 
 #Count middle authors for each gender
-df.b.all2020$female.mid.authors.n <- df.b.all2020$female.n - ifelse(df.b.all2020$first.author.gender == "female", 1, 0) - ifelse(df.b.all2020$last.author.gender == "female", 1, 0)
-df.b.all2020$male.mid.authors.n <- df.b.all2020$male.n - ifelse(df.b.all2020$first.author.gender == "male", 1, 0) - ifelse(df.b.all2020$last.author.gender == "male", 1, 0)
+df.b.all2020$female.mid.authors.n <- ifelse(df.b.all2020$author.n > 1, (df.b.all2020$female.n - ifelse(df.b.all2020$first.author.gender == "female", 1, 0) - ifelse(df.b.all2020$last.author.gender == "female", 1, 0)),0)
+df.b.all2020$male.mid.authors.n <- ifelse(df.b.all2020$author.n > 1, (df.b.all2020$male.n - ifelse(df.b.all2020$first.author.gender == "male", 1, 0) - ifelse(df.b.all2020$last.author.gender == "male", 1, 0)), 0)
 
 df.b.all2020 <- df.b.all2020[!duplicated(df.b.all2020),] #Remove duplicated rows, if any
 df.b.all2020.output <- as.data.frame(apply(df.b.all2020,2,as.character)) 
 write.csv(df.b.all2020.output, "Data/biorxiv_full_authors_2020_gender.csv") #Save data
-
 ```
 
 Next we calculated some summary statistics for the bioRxiv dataset.
@@ -796,7 +796,7 @@ first.authors <- subset(df.b.full, !is.na(first.author.gender)) %>% group_by(yea
 first.authors$per.dif.1920 <- c(first.authors[3,3]/first.authors[1,3],first.authors[4,3]/first.authors[2,3] ,first.authors[3,3]/first.authors[1,3], first.authors[4,3]/first.authors[2,3])
 first.authors$per.dif.1920 <- (as.numeric(first.authors$per.dif.1920)-1)*100 #Calculate percent change, 2020 over 2019
 
-p15 <- ggplot(data=first.authors, aes(fill=as.factor(year), y=n, x=first.author.gender))+geom_bar(position="dodge", stat="identity")+theme_cowplot()+xlab("Gender")+ylab("Authorships (no.)")+labs(fill="Year")+scale_fill_manual(values = colours1, labels=yr.labels)+theme(legend.position = "top", legend.justification="left", legend.title = element_blank())+ggplot2::annotate("text", x=c(1, 2),  y=c(1450,2000), label = paste0("+", round(first.authors$per.dif.1920[1:2], 1), "%"))+theme(legend.text=element_text(size=fontsize))+labs(title="bioRxiv", subtitle = "first authorships")+guides(fill=guide_legend(nrow=2))+scale_x_discrete(labels=c("Women", "Men"))
+p15 <- ggplot(data=first.authors, aes(fill=as.factor(year), y=n, x=first.author.gender))+geom_bar(position="dodge", stat="identity")+theme_cowplot()+xlab("Gender")+ylab("Authorships (no.)")+labs(fill="Year")+scale_fill_manual(values = colours1, labels=yr.labels)+theme(legend.position = "top", legend.justification="left", legend.title = element_blank())+ggplot2::annotate("text", x=c(1, 2),  y=c(1450,1920), label = paste0("+", round(first.authors$per.dif.1920[1:2], 1), "%"))+theme(legend.text=element_text(size=fontsize))+labs(title="bioRxiv", subtitle = "first authorships")+guides(fill=guide_legend(nrow=2))+scale_x_discrete(labels=c("Women", "Men"))
 p15
 ```
 
@@ -809,7 +809,7 @@ last.authors <- subset(df.b.full, !is.na(last.author.gender)) %>% group_by(year,
 last.authors$per.dif.1920 <- c(last.authors[3,3]/last.authors[1,3],last.authors[4,3]/last.authors[2,3] ,last.authors[3,3]/last.authors[1,3], last.authors[4,3]/last.authors[2,3])
 last.authors$per.dif.1920 <- (as.numeric(last.authors$per.dif.1920)-1)*100 #Calculate percent change, 2020 over 2019
 
-p16 <- ggplot(data=last.authors, aes(fill=as.factor(year), y=n, x=last.author.gender))+geom_bar(position="dodge", stat="identity")+theme_cowplot()+xlab("Gender")+ylab("Authorships (no.)")+labs(fill="Year")+scale_fill_manual(values = colours1, labels=yr.labels)+theme(legend.position = "top", legend.justification="left", legend.title = element_blank())+ggplot2::annotate("text", x=c(1, 2),  y=c(950,2550), label = paste0("+", round(last.authors$per.dif.1920[1:2], 1), "%"))+theme(legend.text=element_text(size=fontsize))+labs(title="bioRxiv", subtitle = "last authorships")+guides(fill=guide_legend(nrow=2))+scale_x_discrete(labels=c("Women", "Men"))
+p16 <- ggplot(data=last.authors, aes(fill=as.factor(year), y=n, x=last.author.gender))+geom_bar(position="dodge", stat="identity")+theme_cowplot()+xlab("Gender")+ylab("Authorships (no.)")+labs(fill="Year")+scale_fill_manual(values = colours1, labels=yr.labels)+theme(legend.position = "top", legend.justification="left", legend.title = element_blank())+ggplot2::annotate("text", x=c(1, 2),  y=c(950,2520), label = paste0("+", round(last.authors$per.dif.1920[1:2], 1), "%"))+theme(legend.text=element_text(size=fontsize))+labs(title="bioRxiv", subtitle = "last authorships")+guides(fill=guide_legend(nrow=2))+scale_x_discrete(labels=c("Women", "Men"))
 p16
 ```
 
@@ -825,7 +825,7 @@ colnames(middle.t) <- c("2019", "2020") #Fix column names
 middle.t$per.dif.1920 <- ((middle.t$`2020`-middle.t$`2019`)/(middle.t$`2019`))*100 #Calculate percent change, 2020 over 2019
 
 #Make figure comparing 2020 to 2019
-p17 <- ggplot(data=middle.long, aes(fill=as.factor(year), y=number, x=Gender))+geom_bar(position="dodge", stat="identity")+theme_cowplot()+xlab("Gender")+ylab("Authorships (no.)")+labs(fill="Year")+scale_fill_manual(values=colours1, labels=yr.labels)+theme(legend.position = "top", legend.justification="left", legend.title = element_blank(), legend.text = element_text(size=fontsize))+ggplot2::annotate("text", x=c(1, 2),  y=c(5200,7500), label = c(paste0("+", round(middle.t$per.dif.1920[1], 1), "%"), paste0("+", round(middle.t$per.dif.1920[2], 1), "%")))+labs(title="bioRxiv", subtitle="middle authorships")+guides(fill=guide_legend(nrow=2))+scale_x_discrete(labels=c("Women", "Men"))
+p17 <- ggplot(data=middle.long, aes(fill=as.factor(year), y=number, x=Gender))+geom_bar(position="dodge", stat="identity")+theme_cowplot()+xlab("Gender")+ylab("Authorships (no.)")+labs(fill="Year")+scale_fill_manual(values=colours1, labels=yr.labels)+theme(legend.position = "top", legend.justification="left", legend.title = element_blank(), legend.text = element_text(size=fontsize))+ggplot2::annotate("text", x=c(1, 2),  y=c(5180,7480), label = c(paste0("+", round(middle.t$per.dif.1920[1], 1), "%"), paste0("+", round(middle.t$per.dif.1920[2], 1), "%")))+labs(title="bioRxiv", subtitle="middle authorships")+guides(fill=guide_legend(nrow=2))+scale_x_discrete(labels=c("Women", "Men"))
 p17
 ```
 
@@ -841,7 +841,7 @@ biorxiv.long <- gather(biorxiv, gender, n, female.n:male.n)
 colnames(biorxiv.long) <- c("week", "gender", "n")
 biorxiv.long$gender <- factor(biorxiv.long$gender, rev(levels(as.factor(biorxiv.long$gender))))
 
-p18 <- ggplot(data=subset(biorxiv.long, as.Date(week) >= "2020-01-01" & as.Date(week) <= "2020-06-28"), aes(x=as.Date(week), y=n, color=gender))+geom_point(size=2)+geom_smooth(method="lm",se=FALSE)+ylab("Authorships (no.)")+xlab("Date")+theme_cowplot()+scale_color_manual(name="Gender", labels=c("Men", "Women"), values=colours2)+scale_shape_discrete(name="Gender", labels=c("Men", "Women"))+geom_vline(aes(xintercept=as.Date(who)), linetype="dashed")+labs(title="bioRxiv", subtitle="all authorships")+scale_x_date(date_labels = "%b %Y")+theme(axis.text.x=element_text(angle=60, hjust=1))
+p18 <- ggplot(data=subset(biorxiv.long, as.Date(week) >= "2020-01-01" & as.Date(week) <= "2020-06-28"), aes(x=as.Date(week), y=n, color=gender, shape=gender))+geom_point(size=2)+geom_smooth(method="lm",se=FALSE)+ylab("Authorships (no.)")+xlab("Date")+theme_cowplot()+scale_color_manual(name="Gender", labels=c("Men", "Women"), values=colours2)+scale_shape_discrete(name="Gender", labels=c("Men", "Women"))+geom_vline(aes(xintercept=as.Date(who)), linetype="dashed")+labs(title="bioRxiv", subtitle="all authorships")+scale_x_date(date_labels = "%b %Y")+theme(axis.text.x=element_text(angle=60, hjust=1), legend.position="top")
 p18
 
 #Model
@@ -867,7 +867,7 @@ biorxiv.sole.long <- gather(biorxiv.sole, gender, n, female.n:male.n)
 colnames(biorxiv.sole.long) <- c("week", "gender", "n")
 biorxiv.sole.long$gender <- factor(biorxiv.sole.long$gender, rev(levels(as.factor(biorxiv.sole.long$gender))))
 
-p19 <- ggplot(data=subset(biorxiv.sole.long, as.Date(week) >= "2020-01-01" & as.Date(week) <= "2020-06-28"), aes(x=as.Date(week), y=n, color=gender))+geom_point(size=2)+geom_smooth(method="lm",se=FALSE)+ylab("Authorships (no.)")+xlab("Date")+theme_cowplot()+scale_color_manual(name="Gender", labels=c("Men", "Women"), values=colours2)+scale_shape_discrete(name="Gender", labels=c("Men", "Women"))+geom_vline(aes(xintercept=as.Date(who)), linetype="dashed")+labs(title="bioRxiv", subtitle="sole authorships")+scale_x_date(date_labels = "%b %Y")+theme(axis.text.x=element_text(angle=60, hjust=1))
+p19 <- ggplot(data=subset(biorxiv.sole.long, as.Date(week) >= "2020-01-01" & as.Date(week) <= "2020-06-28"), aes(x=as.Date(week), y=n, color=gender, shape=gender))+geom_point(size=2)+geom_smooth(method="lm",se=FALSE)+ylab("Authorships (no.)")+xlab("Date")+theme_cowplot()+scale_color_manual(name="Gender", labels=c("Men", "Women"), values=colours2)+scale_shape_discrete(name="Gender", labels=c("Men", "Women"))+geom_vline(aes(xintercept=as.Date(who)), linetype="dashed")+labs(title="bioRxiv", subtitle="sole authorships")+scale_x_date(date_labels = "%b %Y")+theme(axis.text.x=element_text(angle=60, hjust=1), legend.position="top")
 p19
 
 #Model
@@ -890,7 +890,7 @@ biorxiv.first <- as.data.frame(ungroup(subset(df.b.all2020, as.Date(date) >= "20
 colnames(biorxiv.first) <- c("week", "gender", "n")
 biorxiv.first$gender <- factor(biorxiv.first$gender, rev(levels(as.factor(biorxiv.first$gender))))
 
-p20 <- ggplot(data=subset(biorxiv.first, as.Date(week) >= "2020-01-01" & as.Date(week) <= "2020-06-28"), aes(x=as.Date(week), y=n, color=gender))+geom_point(size=2)+geom_smooth(method="lm",se=FALSE)+ylab("Authorships (no.)")+xlab("Date")+theme_cowplot()+scale_color_manual(name="Gender", labels=c("Men", "Women"), values=colours2)+scale_shape_discrete(name="Gender", labels=c("Men", "Women"))+geom_vline(aes(xintercept=as.Date(who)), linetype="dashed")+labs(title="bioRxiv", subtitle="first authorships")+scale_x_date(date_labels = "%b %Y")+theme(axis.text.x=element_text(angle=60, hjust=1))
+p20 <- ggplot(data=subset(biorxiv.first, as.Date(week) >= "2020-01-01" & as.Date(week) <= "2020-06-28"), aes(x=as.Date(week), y=n, color=gender, shape=gender))+geom_point(size=2)+geom_smooth(method="lm",se=FALSE)+ylab("Authorships (no.)")+xlab("Date")+theme_cowplot()+scale_color_manual(name="Gender", labels=c("Men", "Women"), values=colours2)+scale_shape_discrete(name="Gender", labels=c("Men", "Women"))+geom_vline(aes(xintercept=as.Date(who)), linetype="dashed")+labs(title="bioRxiv", subtitle="first authorships")+scale_x_date(date_labels = "%b %Y")+theme(axis.text.x=element_text(angle=60, hjust=1), legend.position="top")
 p20
 
 #Model
@@ -912,7 +912,7 @@ biorxiv.last <- as.data.frame(ungroup(subset(df.b.all2020, as.Date(date) >= "202
 colnames(biorxiv.last) <- c("week", "gender", "n")
 biorxiv.last$gender <- factor(biorxiv.last$gender, rev(levels(as.factor(biorxiv.last$gender))))
 
-p21 <- ggplot(data=subset(biorxiv.last, as.Date(week) >= "2020-01-01" & as.Date(week) <= "2020-06-28"), aes(x=as.Date(week), y=n, color=gender))+geom_point(size=2)+geom_smooth(method="lm",se=FALSE)+ylab("Authorships (no.)")+xlab("Date")+theme_cowplot()+scale_color_manual(name="Gender", labels=c("Men", "Women"), values=colours2)+scale_shape_discrete(name="Gender", labels=c("Men", "Women"))+geom_vline(aes(xintercept=as.Date(who)), linetype="dashed")+labs(title="bioRxiv", subtitle="last authorships")+scale_x_date(date_labels = "%b %Y")+theme(axis.text.x=element_text(angle=60, hjust=1))
+p21 <- ggplot(data=subset(biorxiv.last, as.Date(week) >= "2020-01-01" & as.Date(week) <= "2020-06-28"), aes(x=as.Date(week), y=n, color=gender, shape=gender))+geom_point(size=2)+geom_smooth(method="lm",se=FALSE)+ylab("Authorships (no.)")+xlab("Date")+theme_cowplot()+scale_color_manual(name="Gender", labels=c("Men", "Women"), values=colours2)+scale_shape_discrete(name="Gender", labels=c("Men", "Women"))+geom_vline(aes(xintercept=as.Date(who)), linetype="dashed")+labs(title="bioRxiv", subtitle="last authorships")+scale_x_date(date_labels = "%b %Y")+theme(axis.text.x=element_text(angle=60, hjust=1),legend.position="top")
 p21
 
 #Model
@@ -935,7 +935,7 @@ biorxiv.middle.long <- gather(biorxiv.middle, gender, n, female.n:male.n)
 colnames(biorxiv.middle.long) <- c("week", "gender", "n")
 biorxiv.middle.long$gender <- factor(biorxiv.middle.long$gender, rev(levels(as.factor(biorxiv.middle.long$gender))))
 
-p22 <- ggplot(data=subset(biorxiv.middle.long, as.Date(week) >= "2020-01-01" & as.Date(week) <= "2020-06-28"), aes(x=as.Date(week),y=n, color=gender))+geom_point(size=2)+theme_cowplot()+geom_smooth(method="lm",se=FALSE)+ylab("Authorships (no.)")+xlab("Date")+scale_color_manual(name="Gender", labels=c("Men", "Women"), values=colours2)+scale_shape_discrete(name="Gender", labels=c("Men", "Women"))+geom_vline(aes(xintercept=as.Date(who)), linetype="dashed")+labs(title="bioRxiv", subtitle="middle authorships")+scale_x_date(date_labels = "%b %Y")+theme(axis.text.x=element_text(angle=60, hjust=1))
+p22 <- ggplot(data=subset(biorxiv.middle.long, as.Date(week) >= "2020-01-01" & as.Date(week) <= "2020-06-28"), aes(x=as.Date(week),y=n, color=gender, shape=gender))+geom_point(size=2)+theme_cowplot()+geom_smooth(method="lm",se=FALSE)+ylab("Authorships (no.)")+xlab("Date")+scale_color_manual(name="Gender", labels=c("Men", "Women"), values=colours2)+scale_shape_discrete(name="Gender", labels=c("Men", "Women"))+geom_vline(aes(xintercept=as.Date(who)), linetype="dashed")+labs(title="bioRxiv", subtitle="middle authorships")+scale_x_date(date_labels = "%b %Y")+theme(axis.text.x=element_text(angle=60, hjust=1), legend.position="top")
 p22
 
 #Model
