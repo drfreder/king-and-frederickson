@@ -122,8 +122,8 @@ names(getgender) <- gender$name
 df.full$last.author.gender <- getgender[df.full$last.author.first.name]
 
 #Count middle authors for each gender
-df.full$female.mid.authors.n <- ifelse(df.full$author.n > 1, (df.full$female.n - ifelse(df.full$first.author.gender == "female", 1, 0) - ifelse(df.full$last.author.gender == "female", 1, 0)), 0)
-df.full$male.mid.authors.n <- ifelse(df.full$author.n > 1, (df.full$male.n - ifelse(df.full$first.author.gender == "male", 1, 0) - ifelse(df.full$last.author.gender == "male", 1, 0)), 0)
+df.full$female.mid.authors.n <- ifelse(df.full$author.n > 1, (df.full$female.n - ifelse(df.full$first.author.gender %in% "female", 1, 0) - ifelse(df.full$last.author.gender %in% "female", 1, 0)), 0)
+df.full$male.mid.authors.n <- ifelse(df.full$author.n > 1, (df.full$male.n - ifelse(df.full$first.author.gender %in% "male", 1, 0) - ifelse(df.full$last.author.gender %in% "male", 1, 0)), 0)
 
 df.full.output <- as.data.frame(apply(df.full,2,as.character)) 
 write.csv(df.full.output, "Data/arxiv_full_gender.csv") #Save data
@@ -162,8 +162,8 @@ getgender <- gender$gender
 names(getgender) <- gender$name
 df.all2020$last.author.gender <- getgender[df.all2020$last.author.first.name]
 
-df.all2020$female.mid.authors.n <- ifelse(df.all2020$author.n > 1, (df.all2020$female.n - ifelse(df.all2020$first.author.gender == "female", 1, 0) - ifelse(df.all2020$last.author.gender == "female", 1, 0)), 0)
-df.all2020$male.mid.authors.n <- ifelse(df.all2020$author.n > 1, (df.all2020$male.n - ifelse(df.all2020$first.author.gender == "male", 1, 0) - ifelse(df.all2020$last.author.gender == "male", 1, 0)), 0)
+df.all2020$female.mid.authors.n <- ifelse(df.all2020$author.n > 1, (df.all2020$female.n - ifelse(df.all2020$first.author.gender %in% "female", 1, 0) - ifelse(df.all2020$last.author.gender %in% "female", 1, 0)), 0)
+df.all2020$male.mid.authors.n <- ifelse(df.all2020$author.n > 1, (df.all2020$male.n - ifelse(df.all2020$first.author.gender %in% "male", 1, 0) - ifelse(df.all2020$last.author.gender %in% "male", 1, 0)), 0)
 
 df.all2020.output <- as.data.frame(apply(df.all2020,2,as.character))
 write.csv(df.all2020.output, "Data/arxiv_all2020_gender.csv") #Save data
@@ -190,6 +190,9 @@ per.gender <- round((total.authors.with.gender/total.authors)*100, 1) #Percent o
 
 year.arxiv.preprints <- length(df.full$"id") #Total number of preprints for year-over-year comparison
 year.arxiv.authors <- sum(df.full[, "male.n"]+df.full[, "female.n"]) #Authors with gender inferred for year-over-year comparison
+
+#preprints per year
+yr.summary <- df.full %>% group_by(year) %>% summarize(n=n())
 ```
 
 There are 114632 preprints in the full arXiv dataset, with a total of
@@ -267,9 +270,8 @@ terms.
 ### Comparing arXiv preprint submissions by authorship position between Mar/Apr 2019 and Mar/Apr 2020, by gender
 
 What if we break it down further by author position, so first, middle,
-or last? First up, first authorships. Note that this includes first
-authorships of multi-authored papers as well as sole
-authorships.
+or last? First up, first authorships of multi-authored
+papers.
 
 ##### First authorships
 
@@ -284,8 +286,8 @@ p3
 
 ![](README_files/figure-gfm/arXiv%20year-over-year%20first%20authors-1.png)<!-- -->
 
-The number of men first authorships has grown only very slightly faster
-than the number of women first authorships, year-over-year.
+The number of women first authorships has grown slightly faster than the
+number of men first authorships, as a percent change year-over-year.
 
 ##### Last authorships
 
@@ -324,15 +326,15 @@ colours1 = c("#f4a582","#ca0020") #Set colours
 fontsize = 10
 
 #Make figure comparing 2020 to 2019
-p5 <- ggplot(data=middle.long, aes(fill=as.factor(year), y=number, x=Gender))+geom_bar(position="dodge", stat="identity")+theme_cowplot()+xlab("Gender")+ylab("Authorships (no.)")+labs(fill="Year")+scale_fill_manual(values=colours1, labels=yr.labels)+theme(legend.position = "top", legend.justification="left", legend.title = element_blank(), legend.text = element_text(size=fontsize))+ggplot2::annotate("text", x=c(1, 2),  y=c(2700,8000), label = c(paste0(round(middle.t$per.dif.1920[1], 1), "%"), paste0("+", round(middle.t$per.dif.1920[2], 1), "%")))+labs(title="arXiv", subtitle="middle authorships")+guides(fill=guide_legend(nrow=2))+scale_x_discrete(labels=c("Women", "Men"))
+p5 <- ggplot(data=middle.long, aes(fill=as.factor(year), y=number, x=Gender))+geom_bar(position="dodge", stat="identity")+theme_cowplot()+xlab("Gender")+ylab("Authorships (no.)")+labs(fill="Year")+scale_fill_manual(values=colours1, labels=yr.labels)+theme(legend.position = "top", legend.justification="left", legend.title = element_blank(), legend.text = element_text(size=fontsize))+ggplot2::annotate("text", x=c(1, 2),  y=c(4770,14450), label = c(paste0("+", round(middle.t$per.dif.1920[1], 1), "%"), paste0("+", round(middle.t$per.dif.1920[2], 1), "%")))+labs(title="arXiv", subtitle="middle authorships")+guides(fill=guide_legend(nrow=2))+scale_x_discrete(labels=c("Women", "Men"))
 p5
 ```
 
 ![](README_files/figure-gfm/arXiv%20middle%20authors%20year-over-year-1.png)<!-- -->
 
-The number of women middle authorships actually declined from Mar/Apr
-2019 to Mar/Apr 2020, while the number of men middle authorships rose
-somewhat.
+Again, the number of men middle authorships increased more than the
+number of women middle authorships,
+year-over-year.
 
 ### Comparing arXiv preprint submissions in the months before and during COVID-19 pandemic, by gender
 
@@ -692,26 +694,26 @@ summary(lm5)
     ## 
     ## Residuals:
     ##     Min      1Q  Median      3Q     Max 
-    ## -3.8947 -0.9626  0.0034  0.9037  4.0132 
+    ## -5.0880 -1.0811 -0.0009  1.0646  5.1924 
     ## 
     ## Coefficients:
     ##                   Estimate Std. Error t value Pr(>|t|)    
-    ## (Intercept)       2.913955   0.285741  10.198  < 2e-16 ***
-    ## day               0.008940   0.002046   4.369 1.64e-05 ***
-    ## gendermale.n      6.174141   0.305239  20.227  < 2e-16 ***
-    ## day_of_weekMon    6.014098   0.284352  21.150  < 2e-16 ***
-    ## day_of_weekTue    6.291759   0.284363  22.126  < 2e-16 ***
-    ## day_of_weekWed    5.598725   0.284408  19.686  < 2e-16 ***
-    ## day_of_weekThu    5.586159   0.284382  19.643  < 2e-16 ***
-    ## day_of_weekFri    5.289113   0.284363  18.600  < 2e-16 ***
-    ## day_of_weekSat   -0.116213   0.284352  -0.409 0.683012    
-    ## day:gendermale.n  0.010543   0.002893   3.644 0.000308 ***
+    ## (Intercept)       5.079842   0.332217  15.291  < 2e-16 ***
+    ## day               0.012355   0.002379   5.193 3.50e-07 ***
+    ## gendermale.n      8.241756   0.354885  23.224  < 2e-16 ***
+    ## day_of_weekMon    6.969442   0.330602  21.081  < 2e-16 ***
+    ## day_of_weekTue    7.109628   0.330615  21.504  < 2e-16 ***
+    ## day_of_weekWed    6.127846   0.330666  18.532  < 2e-16 ***
+    ## day_of_weekThu    6.415055   0.330636  19.402  < 2e-16 ***
+    ## day_of_weekFri    5.357391   0.330615  16.204  < 2e-16 ***
+    ## day_of_weekSat   -0.440918   0.330602  -1.334    0.183    
+    ## day:gendermale.n  0.013720   0.003364   4.079 5.59e-05 ***
     ## ---
     ## Signif. codes:  0 '***' 0.001 '**' 0.01 '*' 0.05 '.' 0.1 ' ' 1
     ## 
-    ## Residual standard error: 1.45 on 354 degrees of freedom
-    ## Multiple R-squared:  0.9087, Adjusted R-squared:  0.9064 
-    ## F-statistic: 391.6 on 9 and 354 DF,  p-value: < 2.2e-16
+    ## Residual standard error: 1.686 on 354 degrees of freedom
+    ## Multiple R-squared:  0.9226, Adjusted R-squared:  0.9206 
+    ## F-statistic: 468.6 on 9 and 354 DF,  p-value: < 2.2e-16
 
 ``` r
 Anova(lm5, type=3)
@@ -720,13 +722,13 @@ Anova(lm5, type=3)
     ## Anova Table (Type III tests)
     ## 
     ## Response: sqrt(n)
-    ##              Sum Sq  Df F value    Pr(>F)    
-    ## (Intercept)  218.62   1 103.997 < 2.2e-16 ***
-    ## day           40.12   1  19.087 1.643e-05 ***
-    ## gender       860.10   1 409.142 < 2.2e-16 ***
-    ## day_of_week 2543.96   6 201.690 < 2.2e-16 ***
-    ## day:gender    27.92   1  13.281 0.0003083 ***
-    ## Residuals    744.18 354                      
+    ##             Sum Sq  Df F value    Pr(>F)    
+    ## (Intercept)  664.4   1 233.807 < 2.2e-16 ***
+    ## day           76.6   1  26.965 3.502e-07 ***
+    ## gender      1532.6   1 539.341 < 2.2e-16 ***
+    ## day_of_week 3360.4   6 197.091 < 2.2e-16 ***
+    ## day:gender    47.3   1  16.638 5.591e-05 ***
+    ## Residuals   1006.0 354                      
     ## ---
     ## Signif. codes:  0 '***' 0.001 '**' 0.01 '*' 0.05 '.' 0.1 ' ' 1
 
@@ -756,7 +758,7 @@ p12
 ![](README_files/figure-gfm/Combine%20visualizations%20for%20omnibus%20figures-2.png)<!-- -->
 
 ``` r
-save_plot("early2020_arxiv.png", p12, base_height=8, base_width=14, dpi=600)
+save_plot("early2020_arxiv.png", p12, base_height=8, base_width=10, dpi=600)
 ```
 
 ## bioRxiv submissions
@@ -925,7 +927,7 @@ for(i in 1:length(df.b.full$authors_full)){
   df.b.full$female.n[i] <-  sum(as.numeric(str_count(as.character(tmp$gender), pattern = paste(sprintf("\\b%s\\b", "female")))), na.rm=TRUE)
 }
 
-#Predict first author gender (includes sole authors)
+#Predict first author gender (omits sole authors)
 df.b.full$author.n <- str_count(df.b.full$authors, pattern = "\\;")+1 #Count author number
 df.b.full$first.author.first.name <- ifelse(df.b.full$author.n > 1, word(trimws(as.character(df.b.full$first.author, 1))), NA)
 gender <- gender(df.b.full$first.author.first.name, method = "ssa") #Predict gender
@@ -942,9 +944,9 @@ getgender <- gender$gender
 names(getgender) <- gender$name
 df.b.full$last.author.gender <- getgender[df.b.full$last.author.first.name]
 
-#Count middle authors for each gender
-df.b.full$female.mid.authors.n <- ifelse(df.b.full$author.n > 1, (df.b.full$female.n - ifelse(df.b.full$first.author.gender == "female", 1, 0) - ifelse(df.b.full$last.author.gender == "female", 1, 0)), 0)
-df.b.full$male.mid.authors.n <- ifelse(df.b.full$author.n > 1, (df.b.full$male.n - ifelse(df.b.full$first.author.gender == "male", 1, 0) - ifelse(df.b.full$last.author.gender == "male", 1, 0)), 0)
+#Count middle authors for each gender (omits sole authors)
+df.b.full$female.mid.authors.n <- ifelse(df.b.full$author.n > 1, (df.b.full$female.n - ifelse(df.b.full$first.author.gender %in% "female", 1, 0) - ifelse(df.b.full$last.author.gender %in% "female", 1, 0)), 0)
+df.b.full$male.mid.authors.n <- ifelse(df.b.full$author.n > 1, (df.b.full$male.n - ifelse(df.b.full$first.author.gender %in% "male", 1, 0) - ifelse(df.b.full$last.author.gender %in% "male", 1, 0)), 0)
 
 df.b.full <- df.b.full[!duplicated(df.b.full),] #Remove duplicated rows, if any
 df.b.full.output <- as.data.frame(apply(df.b.full,2,as.character)) 
@@ -968,7 +970,7 @@ for(i in 1:length(df.b.all2020$authors_full)){
   df.b.all2020$female.n[i] <-  sum(as.numeric(str_count(as.character(tmp$gender), pattern = paste(sprintf("\\b%s\\b", "female")))), na.rm=TRUE)
 }
 
-#Predict first author gender (includes sole authors)
+#Predict first author gender (omits sole authors)
 df.b.all2020$author.n <- str_count(df.b.all2020$authors, pattern = "\\;")+1 #Count author number
 df.b.all2020$first.author.first.name <- word(df.b.all2020$first.author, 1)
 gender <- gender(df.b.all2020$first.author.first.name, method = "ssa") #Predict gender
@@ -986,8 +988,8 @@ names(getgender) <- gender$name
 df.b.all2020$last.author.gender <- getgender[df.b.all2020$last.author.first.name]
 
 #Count middle authors for each gender
-df.b.all2020$female.mid.authors.n <- ifelse(df.b.all2020$author.n > 1, (df.b.all2020$female.n - ifelse(df.b.all2020$first.author.gender == "female", 1, 0) - ifelse(df.b.all2020$last.author.gender == "female", 1, 0)),0)
-df.b.all2020$male.mid.authors.n <- ifelse(df.b.all2020$author.n > 1, (df.b.all2020$male.n - ifelse(df.b.all2020$first.author.gender == "male", 1, 0) - ifelse(df.b.all2020$last.author.gender == "male", 1, 0)), 0)
+df.b.all2020$female.mid.authors.n <- ifelse(df.b.all2020$author.n > 1, (df.b.all2020$female.n - ifelse(df.b.all2020$first.author.gender %in% "female", 1, 0) - ifelse(df.b.all2020$last.author.gender %in% "female", 1, 0)),0)
+df.b.all2020$male.mid.authors.n <- ifelse(df.b.all2020$author.n > 1, (df.b.all2020$male.n - ifelse(df.b.all2020$first.author.gender %in% "male", 1, 0) - ifelse(df.b.all2020$last.author.gender %in% "male", 1, 0)), 0)
 
 df.b.all2020 <- df.b.all2020[!duplicated(df.b.all2020),] #Remove duplicated rows, if any
 df.b.all2020.output <- as.data.frame(apply(df.b.all2020,2,as.character)) 
@@ -1011,6 +1013,9 @@ per.b.gender <- round((total.b.authors.with.gender/total.b.authors)*100, 1) #Per
 
 year.biorxiv.preprints <- length(df.b.full[, "doi"]) #Preprints for just year-over-year comparison
 year.biorxiv.authors <- sum(df.b.full[, "male.n"]+df.b.full[, "female.n"]) #Preprint authors with gender for year-over-year comparison
+
+#preprints per year
+yr.summary <- df.b.full %>% group_by(year) %>% summarize(n=n())
 
 #How many corresponding authors are first versus last authors?
 all.biorxiv$cor <- paste0(word(all.biorxiv$author_corresponding, 1), " ", word(all.biorxiv$author_corresponding, -1))
@@ -1045,6 +1050,7 @@ all.long <- gather(all, Gender, number, Female:Male) #Make wide data long
 all.t <- as.data.frame(t(all[,-1])) #Transpose
 colnames(all.t) <- c("2019", "2020") #Fix column names
 all.t$per.dif.1920 <- ((all.t$`2020`-all.t$`2019`)/(all.t$`2019`))*100 #Calculate percent change, 2020 over 2019
+
 
 #Make figure comparing 2020 to 2019
 p13 <- ggplot(data=all.long, aes(fill=as.factor(year), y=number, x=Gender))+geom_bar(position="dodge", stat="identity")+theme_cowplot()+xlab("Gender")+ylab("Authorships (no.)")+labs(fill="Year")+scale_fill_manual(values=colours1, labels=yr.labels)+theme(legend.position = "top", legend.justification="left", legend.title = element_blank(), legend.text = element_text(size=fontsize))+ggplot2::annotate("text", x=c(1, 2),  y=c(10500,16500), label = paste0("+", round(all.t$per.dif.1920[1:2], 1), "%"))+labs(title="biorXiv", subtitle="all authorships")+guides(fill=guide_legend(nrow=2))+scale_x_discrete(labels=c("Women", "Men"))
@@ -1138,14 +1144,14 @@ colnames(middle.t) <- c("2019", "2020") #Fix column names
 middle.t$per.dif.1920 <- ((middle.t$`2020`-middle.t$`2019`)/(middle.t$`2019`))*100 #Calculate percent change, 2020 over 2019
 
 #Make figure comparing 2020 to 2019
-p17 <- ggplot(data=middle.long, aes(fill=as.factor(year), y=number, x=Gender))+geom_bar(position="dodge", stat="identity")+theme_cowplot()+xlab("Gender")+ylab("Authorships (no.)")+labs(fill="Year")+scale_fill_manual(values=colours1, labels=yr.labels)+theme(legend.position = "top", legend.justification="left", legend.title = element_blank(), legend.text = element_text(size=fontsize))+ggplot2::annotate("text", x=c(1, 2),  y=c(5180,7480), label = c(paste0("+", round(middle.t$per.dif.1920[1], 1), "%"), paste0("+", round(middle.t$per.dif.1920[2], 1), "%")))+labs(title="bioRxiv", subtitle="middle authorships")+guides(fill=guide_legend(nrow=2))+scale_x_discrete(labels=c("Women", "Men"))
+p17 <- ggplot(data=middle.long, aes(fill=as.factor(year), y=number, x=Gender))+geom_bar(position="dodge", stat="identity")+theme_cowplot()+xlab("Gender")+ylab("Authorships (no.)")+labs(fill="Year")+scale_fill_manual(values=colours1, labels=yr.labels)+theme(legend.position = "top", legend.justification="left", legend.title = element_blank(), legend.text = element_text(size=fontsize))+ggplot2::annotate("text", x=c(1, 2),  y=c(8100,12000), label = c(paste0("+", round(middle.t$per.dif.1920[1], 1), "%"), paste0("+", round(middle.t$per.dif.1920[2], 1), "%")))+labs(title="bioRxiv", subtitle="middle authorships")+guides(fill=guide_legend(nrow=2))+scale_x_discrete(labels=c("Women", "Men"))
 p17
 ```
 
 ![](README_files/figure-gfm/bioRxiv%20middle%20authors%20year-over-year-1.png)<!-- -->
 
-There was also more growth in the number of men than women middle
-authorships in Mar/Apr 2020, compared to Mar/Apr
+There was also slightly more growth in the number of men than women
+middle authorships in Mar/Apr 2020, compared to Mar/Apr
 2019.
 
 ### Comparing bioRxiv preprint submissions in the months before and during COVID-19 pandemic, by gender
@@ -1483,27 +1489,27 @@ summary(lm10)
     ## lm(formula = sqrt(n) ~ date * gender + day_of_week, data = biorxiv.middle.long)
     ## 
     ## Residuals:
-    ##     Min      1Q  Median      3Q     Max 
-    ## -7.9442 -1.7159 -0.1169  1.7756  7.5880 
+    ##      Min       1Q   Median       3Q      Max 
+    ## -10.2271  -2.0541  -0.0602   2.2700   8.7391 
     ## 
     ## Coefficients:
     ##                   Estimate Std. Error t value Pr(>|t|)    
-    ## (Intercept)       6.656234   0.534307  12.458  < 2e-16 ***
-    ## date              0.025121   0.003827   6.565 1.86e-10 ***
-    ## gendermale.n      2.347885   0.570765   4.114 4.85e-05 ***
-    ## day_of_weekMon    2.157687   0.531710   4.058 6.09e-05 ***
-    ## day_of_weekTue    3.820173   0.531731   7.184 4.02e-12 ***
-    ## day_of_weekWed    4.478879   0.531813   8.422 9.37e-16 ***
-    ## day_of_weekThu    5.299959   0.531765   9.967  < 2e-16 ***
-    ## day_of_weekFri    4.730181   0.531731   8.896  < 2e-16 ***
-    ## day_of_weekSat    1.679724   0.531710   3.159  0.00172 ** 
-    ## date:gendermale.n 0.003849   0.005410   0.711  0.47726    
+    ## (Intercept)       8.509554   0.656147  12.969  < 2e-16 ***
+    ## date              0.030057   0.004699   6.396 5.04e-10 ***
+    ## gendermale.n      3.086555   0.700918   4.404 1.41e-05 ***
+    ## day_of_weekMon    3.071478   0.652958   4.704 3.66e-06 ***
+    ## day_of_weekTue    5.175357   0.652983   7.926 2.98e-14 ***
+    ## day_of_weekWed    5.229182   0.653084   8.007 1.71e-14 ***
+    ## day_of_weekThu    6.548807   0.653025  10.028  < 2e-16 ***
+    ## day_of_weekFri    5.781539   0.652983   8.854  < 2e-16 ***
+    ## day_of_weekSat    2.124664   0.652958   3.254  0.00125 ** 
+    ## date:gendermale.n 0.005044   0.006643   0.759  0.44820    
     ## ---
     ## Signif. codes:  0 '***' 0.001 '**' 0.01 '*' 0.05 '.' 0.1 ' ' 1
     ## 
-    ## Residual standard error: 2.711 on 354 degrees of freedom
-    ## Multiple R-squared:  0.493,  Adjusted R-squared:  0.4801 
-    ## F-statistic: 38.25 on 9 and 354 DF,  p-value: < 2.2e-16
+    ## Residual standard error: 3.329 on 354 degrees of freedom
+    ## Multiple R-squared:  0.4977, Adjusted R-squared:  0.4849 
+    ## F-statistic: 38.97 on 9 and 354 DF,  p-value: < 2.2e-16
 
 ``` r
 Anova(lm10, type=3)
@@ -1512,13 +1518,13 @@ Anova(lm10, type=3)
     ## Anova Table (Type III tests)
     ## 
     ## Response: sqrt(n)
-    ##              Sum Sq  Df  F value    Pr(>F)    
-    ## (Intercept) 1140.74   1 155.1943 < 2.2e-16 ***
-    ## date         316.78   1  43.0974 1.856e-10 ***
-    ## gender       124.38   1  16.9215 4.849e-05 ***
-    ## day_of_week 1164.41   6  26.4025 < 2.2e-16 ***
-    ## date:gender    3.72   1   0.5062    0.4773    
-    ## Residuals   2602.05 354                       
+    ##             Sum Sq  Df  F value    Pr(>F)    
+    ## (Intercept) 1864.4   1 168.1945 < 2.2e-16 ***
+    ## date         453.5   1  40.9126 5.039e-10 ***
+    ## gender       215.0   1  19.3916 1.412e-05 ***
+    ## day_of_week 1712.5   6  25.7480 < 2.2e-16 ***
+    ## date:gender    6.4   1   0.5765    0.4482    
+    ## Residuals   3924.1 354                       
     ## ---
     ## Signif. codes:  0 '***' 0.001 '**' 0.01 '*' 0.05 '.' 0.1 ' ' 1
 

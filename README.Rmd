@@ -167,8 +167,8 @@ names(getgender) <- gender$name
 df.full$last.author.gender <- getgender[df.full$last.author.first.name]
 
 #Count middle authors for each gender
-df.full$female.mid.authors.n <- ifelse(df.full$author.n > 1, (df.full$female.n - ifelse(df.full$first.author.gender == "female", 1, 0) - ifelse(df.full$last.author.gender == "female", 1, 0)), 0)
-df.full$male.mid.authors.n <- ifelse(df.full$author.n > 1, (df.full$male.n - ifelse(df.full$first.author.gender == "male", 1, 0) - ifelse(df.full$last.author.gender == "male", 1, 0)), 0)
+df.full$female.mid.authors.n <- ifelse(df.full$author.n > 1, (df.full$female.n - ifelse(df.full$first.author.gender %in% "female", 1, 0) - ifelse(df.full$last.author.gender %in% "female", 1, 0)), 0)
+df.full$male.mid.authors.n <- ifelse(df.full$author.n > 1, (df.full$male.n - ifelse(df.full$first.author.gender %in% "male", 1, 0) - ifelse(df.full$last.author.gender %in% "male", 1, 0)), 0)
 
 df.full.output <- as.data.frame(apply(df.full,2,as.character)) 
 write.csv(df.full.output, "Data/arxiv_full_gender.csv") #Save data
@@ -207,8 +207,8 @@ getgender <- gender$gender
 names(getgender) <- gender$name
 df.all2020$last.author.gender <- getgender[df.all2020$last.author.first.name]
 
-df.all2020$female.mid.authors.n <- ifelse(df.all2020$author.n > 1, (df.all2020$female.n - ifelse(df.all2020$first.author.gender == "female", 1, 0) - ifelse(df.all2020$last.author.gender == "female", 1, 0)), 0)
-df.all2020$male.mid.authors.n <- ifelse(df.all2020$author.n > 1, (df.all2020$male.n - ifelse(df.all2020$first.author.gender == "male", 1, 0) - ifelse(df.all2020$last.author.gender == "male", 1, 0)), 0)
+df.all2020$female.mid.authors.n <- ifelse(df.all2020$author.n > 1, (df.all2020$female.n - ifelse(df.all2020$first.author.gender %in% "female", 1, 0) - ifelse(df.all2020$last.author.gender %in% "female", 1, 0)), 0)
+df.all2020$male.mid.authors.n <- ifelse(df.all2020$author.n > 1, (df.all2020$male.n - ifelse(df.all2020$first.author.gender %in% "male", 1, 0) - ifelse(df.all2020$last.author.gender %in% "male", 1, 0)), 0)
 
 df.all2020.output <- as.data.frame(apply(df.all2020,2,as.character))
 write.csv(df.all2020.output, "Data/arxiv_all2020_gender.csv") #Save data
@@ -234,6 +234,9 @@ per.gender <- round((total.authors.with.gender/total.authors)*100, 1) #Percent o
 
 year.arxiv.preprints <- length(df.full$"id") #Total number of preprints for year-over-year comparison
 year.arxiv.authors <- sum(df.full[, "male.n"]+df.full[, "female.n"]) #Authors with gender inferred for year-over-year comparison
+
+#preprints per year
+yr.summary <- df.full %>% group_by(year) %>% summarize(n=n())
 ```
 
 There are `r total.preprints` preprints in the full arXiv dataset, with a total of `r format(total.authors, scientific=FALSE)` non-unique authors. We inferred the gender of `r total.authors.with.gender` authors, or `r per.gender`%, with the rest omitted from subsequent analyses. This a lower success rate for predicting author gender for the arXiv dataset than for the bioRxiv dataset (see below), reflecting the fact that arXiv preprints are more likely to list large consortia as authors (e.g., CMS Collaboration), have authors who provide only first initials, or have authors who have names not in the U.S. Social Security names database. 
@@ -281,7 +284,7 @@ Single-authored arXiv submissions are also up overall, but again the number of m
 
 ### Comparing arXiv preprint submissions by authorship position between Mar/Apr 2019 and Mar/Apr 2020, by gender
 
-What if we break it down further by author position, so first, middle, or last? First up, first authorships. Note that this includes first authorships of multi-authored papers as well as sole authorships.
+What if we break it down further by author position, so first, middle, or last? First up, first authorships of multi-authored papers.
 
 ##### First authorships
 
@@ -294,7 +297,7 @@ p3 <- ggplot(data=first.authors, aes(fill=as.factor(year), y=n, x=first.author.g
 p3
 ```
 
-The number of men first authorships has grown only very slightly faster than the number of women first authorships, year-over-year.
+The number of women first authorships has grown slightly faster than the number of men first authorships, as a percent change year-over-year.
 
 ##### Last authorships
 
@@ -326,11 +329,11 @@ colours1 = c("#f4a582","#ca0020") #Set colours
 fontsize = 10
 
 #Make figure comparing 2020 to 2019
-p5 <- ggplot(data=middle.long, aes(fill=as.factor(year), y=number, x=Gender))+geom_bar(position="dodge", stat="identity")+theme_cowplot()+xlab("Gender")+ylab("Authorships (no.)")+labs(fill="Year")+scale_fill_manual(values=colours1, labels=yr.labels)+theme(legend.position = "top", legend.justification="left", legend.title = element_blank(), legend.text = element_text(size=fontsize))+ggplot2::annotate("text", x=c(1, 2),  y=c(2700,8000), label = c(paste0(round(middle.t$per.dif.1920[1], 1), "%"), paste0("+", round(middle.t$per.dif.1920[2], 1), "%")))+labs(title="arXiv", subtitle="middle authorships")+guides(fill=guide_legend(nrow=2))+scale_x_discrete(labels=c("Women", "Men"))
+p5 <- ggplot(data=middle.long, aes(fill=as.factor(year), y=number, x=Gender))+geom_bar(position="dodge", stat="identity")+theme_cowplot()+xlab("Gender")+ylab("Authorships (no.)")+labs(fill="Year")+scale_fill_manual(values=colours1, labels=yr.labels)+theme(legend.position = "top", legend.justification="left", legend.title = element_blank(), legend.text = element_text(size=fontsize))+ggplot2::annotate("text", x=c(1, 2),  y=c(4770,14450), label = c(paste0("+", round(middle.t$per.dif.1920[1], 1), "%"), paste0("+", round(middle.t$per.dif.1920[2], 1), "%")))+labs(title="arXiv", subtitle="middle authorships")+guides(fill=guide_legend(nrow=2))+scale_x_discrete(labels=c("Women", "Men"))
 p5
 ```
 
-The number of women middle authorships actually declined from Mar/Apr 2019 to Mar/Apr 2020, while the number of men middle authorships rose somewhat. 
+Again, the number of men middle authorships increased more than the number of women middle authorships, year-over-year.
 
 ### Comparing arXiv preprint submissions in the months before and during COVID-19 pandemic, by gender
 
@@ -483,7 +486,7 @@ save_plot("year-over-year_arxiv.png", p11, base_height=8, base_width=8, dpi=600)
 p12 <- plot_grid(p6, p7, p8, p9, p10, align='v', axis='l')
 p12
 
-save_plot("early2020_arxiv.png", p12, base_height=8, base_width=14, dpi=600)
+save_plot("early2020_arxiv.png", p12, base_height=8, base_width=10, dpi=600)
 ```
 
 ## bioRxiv submissions
@@ -646,7 +649,7 @@ for(i in 1:length(df.b.full$authors_full)){
   df.b.full$female.n[i] <-  sum(as.numeric(str_count(as.character(tmp$gender), pattern = paste(sprintf("\\b%s\\b", "female")))), na.rm=TRUE)
 }
 
-#Predict first author gender (includes sole authors)
+#Predict first author gender (omits sole authors)
 df.b.full$author.n <- str_count(df.b.full$authors, pattern = "\\;")+1 #Count author number
 df.b.full$first.author.first.name <- ifelse(df.b.full$author.n > 1, word(trimws(as.character(df.b.full$first.author, 1))), NA)
 gender <- gender(df.b.full$first.author.first.name, method = "ssa") #Predict gender
@@ -663,9 +666,9 @@ getgender <- gender$gender
 names(getgender) <- gender$name
 df.b.full$last.author.gender <- getgender[df.b.full$last.author.first.name]
 
-#Count middle authors for each gender
-df.b.full$female.mid.authors.n <- ifelse(df.b.full$author.n > 1, (df.b.full$female.n - ifelse(df.b.full$first.author.gender == "female", 1, 0) - ifelse(df.b.full$last.author.gender == "female", 1, 0)), 0)
-df.b.full$male.mid.authors.n <- ifelse(df.b.full$author.n > 1, (df.b.full$male.n - ifelse(df.b.full$first.author.gender == "male", 1, 0) - ifelse(df.b.full$last.author.gender == "male", 1, 0)), 0)
+#Count middle authors for each gender (omits sole authors)
+df.b.full$female.mid.authors.n <- ifelse(df.b.full$author.n > 1, (df.b.full$female.n - ifelse(df.b.full$first.author.gender %in% "female", 1, 0) - ifelse(df.b.full$last.author.gender %in% "female", 1, 0)), 0)
+df.b.full$male.mid.authors.n <- ifelse(df.b.full$author.n > 1, (df.b.full$male.n - ifelse(df.b.full$first.author.gender %in% "male", 1, 0) - ifelse(df.b.full$last.author.gender %in% "male", 1, 0)), 0)
 
 df.b.full <- df.b.full[!duplicated(df.b.full),] #Remove duplicated rows, if any
 df.b.full.output <- as.data.frame(apply(df.b.full,2,as.character)) 
@@ -689,7 +692,7 @@ for(i in 1:length(df.b.all2020$authors_full)){
   df.b.all2020$female.n[i] <-  sum(as.numeric(str_count(as.character(tmp$gender), pattern = paste(sprintf("\\b%s\\b", "female")))), na.rm=TRUE)
 }
 
-#Predict first author gender (includes sole authors)
+#Predict first author gender (omits sole authors)
 df.b.all2020$author.n <- str_count(df.b.all2020$authors, pattern = "\\;")+1 #Count author number
 df.b.all2020$first.author.first.name <- word(df.b.all2020$first.author, 1)
 gender <- gender(df.b.all2020$first.author.first.name, method = "ssa") #Predict gender
@@ -707,8 +710,8 @@ names(getgender) <- gender$name
 df.b.all2020$last.author.gender <- getgender[df.b.all2020$last.author.first.name]
 
 #Count middle authors for each gender
-df.b.all2020$female.mid.authors.n <- ifelse(df.b.all2020$author.n > 1, (df.b.all2020$female.n - ifelse(df.b.all2020$first.author.gender == "female", 1, 0) - ifelse(df.b.all2020$last.author.gender == "female", 1, 0)),0)
-df.b.all2020$male.mid.authors.n <- ifelse(df.b.all2020$author.n > 1, (df.b.all2020$male.n - ifelse(df.b.all2020$first.author.gender == "male", 1, 0) - ifelse(df.b.all2020$last.author.gender == "male", 1, 0)), 0)
+df.b.all2020$female.mid.authors.n <- ifelse(df.b.all2020$author.n > 1, (df.b.all2020$female.n - ifelse(df.b.all2020$first.author.gender %in% "female", 1, 0) - ifelse(df.b.all2020$last.author.gender %in% "female", 1, 0)),0)
+df.b.all2020$male.mid.authors.n <- ifelse(df.b.all2020$author.n > 1, (df.b.all2020$male.n - ifelse(df.b.all2020$first.author.gender %in% "male", 1, 0) - ifelse(df.b.all2020$last.author.gender %in% "male", 1, 0)), 0)
 
 df.b.all2020 <- df.b.all2020[!duplicated(df.b.all2020),] #Remove duplicated rows, if any
 df.b.all2020.output <- as.data.frame(apply(df.b.all2020,2,as.character)) 
@@ -732,6 +735,9 @@ per.b.gender <- round((total.b.authors.with.gender/total.b.authors)*100, 1) #Per
 
 year.biorxiv.preprints <- length(df.b.full[, "doi"]) #Preprints for just year-over-year comparison
 year.biorxiv.authors <- sum(df.b.full[, "male.n"]+df.b.full[, "female.n"]) #Preprint authors with gender for year-over-year comparison
+
+#preprints per year
+yr.summary <- df.b.full %>% group_by(year) %>% summarize(n=n())
 
 #How many corresponding authors are first versus last authors?
 all.biorxiv$cor <- paste0(word(all.biorxiv$author_corresponding, 1), " ", word(all.biorxiv$author_corresponding, -1))
@@ -759,6 +765,7 @@ all.long <- gather(all, Gender, number, Female:Male) #Make wide data long
 all.t <- as.data.frame(t(all[,-1])) #Transpose
 colnames(all.t) <- c("2019", "2020") #Fix column names
 all.t$per.dif.1920 <- ((all.t$`2020`-all.t$`2019`)/(all.t$`2019`))*100 #Calculate percent change, 2020 over 2019
+
 
 #Make figure comparing 2020 to 2019
 p13 <- ggplot(data=all.long, aes(fill=as.factor(year), y=number, x=Gender))+geom_bar(position="dodge", stat="identity")+theme_cowplot()+xlab("Gender")+ylab("Authorships (no.)")+labs(fill="Year")+scale_fill_manual(values=colours1, labels=yr.labels)+theme(legend.position = "top", legend.justification="left", legend.title = element_blank(), legend.text = element_text(size=fontsize))+ggplot2::annotate("text", x=c(1, 2),  y=c(10500,16500), label = paste0("+", round(all.t$per.dif.1920[1:2], 1), "%"))+labs(title="biorXiv", subtitle="all authorships")+guides(fill=guide_legend(nrow=2))+scale_x_discrete(labels=c("Women", "Men"))
@@ -825,11 +832,11 @@ colnames(middle.t) <- c("2019", "2020") #Fix column names
 middle.t$per.dif.1920 <- ((middle.t$`2020`-middle.t$`2019`)/(middle.t$`2019`))*100 #Calculate percent change, 2020 over 2019
 
 #Make figure comparing 2020 to 2019
-p17 <- ggplot(data=middle.long, aes(fill=as.factor(year), y=number, x=Gender))+geom_bar(position="dodge", stat="identity")+theme_cowplot()+xlab("Gender")+ylab("Authorships (no.)")+labs(fill="Year")+scale_fill_manual(values=colours1, labels=yr.labels)+theme(legend.position = "top", legend.justification="left", legend.title = element_blank(), legend.text = element_text(size=fontsize))+ggplot2::annotate("text", x=c(1, 2),  y=c(5180,7480), label = c(paste0("+", round(middle.t$per.dif.1920[1], 1), "%"), paste0("+", round(middle.t$per.dif.1920[2], 1), "%")))+labs(title="bioRxiv", subtitle="middle authorships")+guides(fill=guide_legend(nrow=2))+scale_x_discrete(labels=c("Women", "Men"))
+p17 <- ggplot(data=middle.long, aes(fill=as.factor(year), y=number, x=Gender))+geom_bar(position="dodge", stat="identity")+theme_cowplot()+xlab("Gender")+ylab("Authorships (no.)")+labs(fill="Year")+scale_fill_manual(values=colours1, labels=yr.labels)+theme(legend.position = "top", legend.justification="left", legend.title = element_blank(), legend.text = element_text(size=fontsize))+ggplot2::annotate("text", x=c(1, 2),  y=c(8100,12000), label = c(paste0("+", round(middle.t$per.dif.1920[1], 1), "%"), paste0("+", round(middle.t$per.dif.1920[2], 1), "%")))+labs(title="bioRxiv", subtitle="middle authorships")+guides(fill=guide_legend(nrow=2))+scale_x_discrete(labels=c("Women", "Men"))
 p17
 ```
 
-There was also more growth in the number of men than women middle authorships in Mar/Apr 2020, compared to Mar/Apr 2019. 
+There was also slightly more growth in the number of men than women middle authorships in Mar/Apr 2020, compared to Mar/Apr 2019. 
 
 ### Comparing bioRxiv preprint submissions in the months before and during COVID-19 pandemic, by gender
 
