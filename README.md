@@ -1552,5 +1552,5 @@ p24
 ![](README_files/figure-gfm/Combine%20biorxiv%20visualizations%20for%20omnibus%20figures-2.png)<!-- -->
 
 ``` r
-save_plot("early2020_biorxiv.png", p24, base_height=8, base_width=14, dpi=600)
+save_plot("early2020_biorxiv.png", p24, base_height=8, base_width=10, dpi=600)
 ```
