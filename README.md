@@ -1,8 +1,8 @@
-The Pandemic Penalty: COVID-19’s Gendered Impact on Academic
+The Pandemic Penalty: COVID-19’s Gendered Impact on Scientific
 Productivity
 ================
 Megan Frederickson and Molly King
-July 17, 2020
+September 11, 2020
 
 We quantified how the COVID-19 pandemic is affecting the gender
 breakdown of preprint submissions to [arXiv](https://arxiv.org/) and
@@ -67,7 +67,7 @@ markdown document.
 
 ``` r
 #Not run
-#First combine data for year-by-year comparison
+#First combine data for year-over-year comparison
 df.2020 <- read.csv("Data/arxiv_2020_data.csv") #Read in data
 df.2019 <- read.csv("Data/arxiv_2019_data.csv")
 df.full <- rbind(df.2019, df.2020) #Combine in one dataframe
@@ -103,7 +103,7 @@ for(i in 1:length(df.full$authors)){
   df.full$female.n[i] <-  sum(as.numeric(str_count(as.character(tmp$gender), pattern = paste(sprintf("\\b%s\\b", "female")))), na.rm=TRUE)
 }
 
-#Predict first author gender (includes sole authors)
+#Predict first author gender (does not include sole authors)
 df.full$author.n <- str_count(df.full$authors, pattern = "\\|")+1 #Count author number
 df.full$first.author.first.name <- ifelse(df.full$author.n > 1, word(df.full$first.author, 1), NA)
 gender <- gender(df.full$first.author.first.name, method = "ssa") #Predict gender
@@ -112,7 +112,7 @@ getgender <- gender$gender
 names(getgender) <- gender$name
 df.full$first.author.gender <- getgender[df.full$first.author.first.name]
 
-#Predict last author gender (omits sole authors)
+#Predict last author gender (again, omits sole authors)
 df.full$author.n <- str_count(df.full$authors, pattern = "\\|")+1 #Count author number
 df.full$last.author.first.name <- ifelse(df.full$author.n > 1, word(df.full$last.author, 1), NA)
 gender <- gender(df.full$last.author.first.name, method = "ssa") #Predict gender
@@ -201,21 +201,19 @@ There are 114632 preprints in the full arXiv dataset, with a total of
 success rate for predicting author gender for the arXiv dataset than for
 the bioRxiv dataset (see below), reflecting the fact that arXiv
 preprints are more likely to list large consortia as authors (e.g., CMS
-Collaboration), have authors who provide only first initials, or have
-authors who have names not in the U.S. Social Security names database.
+Collaboration) or have authors who have names not in the U.S. Social
+Security names database.
 
 For just the comparison of March 15-April 15, 2020 with the same dates
 in 2019, there are 28711 arXiv preprints with 67309 authors for whom we
-inferred
-gender.
+inferred gender.
 
 ### Comparing arXiv preprint authorships between Mar/Apr 2019 and Mar/Apr 2020, by gender
 
 How many men versus women authorships of preprints were there in Mar/Apr
 2020, compared to the same dates last year? Note: this is not the number
 of unique authors; it includes authors who submitted multiple preprints.
-Thus, 1 “authorship” equals 1 author on 1
-paper.
+Thus, 1 “authorship” equals 1 author on 1 paper.
 
 ``` r
 all <- as.data.frame(ungroup(df.full %>% group_by(year) %>% summarize(Female = sum(female.n, na.rm=TRUE), Male = sum(male.n, na.rm=TRUE)))) #Summarize by year
@@ -239,14 +237,12 @@ authorships is currently growing faster than the number of women
 authorships. Comparing preprint submissions in late March and early
 April 2020 to the same dates in 2019, the number of men authorships has
 grown more than the number of women authorships, both as a percent
-change and in absolute
-terms.
+change and in absolute terms.
 
 ### Comparing single-authored arXiv preprints between Mar/Apr 2019 and Mar/Apr 2020, by gender
 
 How many arXiv preprints were authored by a single woman versus a single
-man in Mar/Apr, 2020, compared to the same dates last
-year?
+man in Mar/Apr, 2020, compared to the same dates last year?
 
 ``` r
 sole.authors <- as.data.frame(ungroup(subset(df.full, author.n == 1) %>% group_by(year) %>% summarize(Female = sum(female.n, na.rm=TRUE), Male = sum(male.n, na.rm=TRUE)))) #Summarize by year
@@ -263,15 +259,13 @@ p2
 ![](README_files/figure-gfm/Sole%20authors-1.png)<!-- -->
 
 Single-authored arXiv submissions are also up overall, but again the
-number of men authorhips is currently growing faster than the number of
-women authorships, both as a percent change and in absolute
-terms.
+number of men authorships is currently growing faster than the number of
+women authorships, both as a percent change and in absolute terms.
 
 ### Comparing arXiv preprint submissions by authorship position between Mar/Apr 2019 and Mar/Apr 2020, by gender
 
 What if we break it down further by author position, so first, middle,
-or last? First up, first authorships of multi-authored
-papers.
+or last? First up, first authorships of multi-authored papers.
 
 ##### First authorships
 
@@ -291,8 +285,7 @@ number of men first authorships, as a percent change year-over-year.
 
 ##### Last authorships
 
-What about last, or “senior,” authorships of multi-authored
-papers?
+What about last, or “senior,” authorships of multi-authored papers?
 
 ``` r
 last.authors <- subset(df.full, !is.na(last.author.gender)) %>% group_by(year,last.author.gender) %>% summarize(n=n()) #Summarize by year
@@ -312,8 +305,7 @@ unchanged from 2019.
 ##### Middle authorships
 
 And finally, middle authorships, or all authorships on multi-authored
-papers that are not in the first or last
-position.
+papers that are not in the first or last position.
 
 ``` r
 middle <- as.data.frame(ungroup(df.full %>% group_by(year) %>% summarize(Female = sum(female.mid.authors.n, na.rm=TRUE), Male = sum(male.mid.authors.n, na.rm=TRUE)))) #Summarize by year
@@ -333,10 +325,9 @@ p5
 ![](README_files/figure-gfm/arXiv%20middle%20authors%20year-over-year-1.png)<!-- -->
 
 Again, the number of men middle authorships increased more than the
-number of women middle authorships,
-year-over-year.
+number of women middle authorships, year-over-year.
 
-### Comparing arXiv preprint submissions in the months before and during COVID-19 pandemic, by gender
+### Comparing arXiv preprint submissions in the months before and during the COVID-19 pandemic, by gender
 
 Next, we looked back over the months leading up to widespread
 stay-at-home orders and school and childcare closures that North
@@ -423,14 +414,12 @@ Anova(lm1, type=3)
 ```
 
 The number of male authorships is growing faster than the number of
-female authorships during the
-pandemic.
+female authorships during the pandemic.
 
-### Comparing single-authored arXiv preprint submissions in the months before and during COVID-19 pandemic, by gender
+### Comparing single-authored arXiv preprint submissions in the months before and during the COVID-19 pandemic, by gender
 
 Again, what about for sole authorships? How does early 2020 compare to
-during the
-pandemic?
+during the pandemic?
 
 ``` r
 arxiv.sole <- as.data.frame(ungroup(subset(df.all2020, as.Date(submitted) >= "2020-01-01" & as.Date(submitted) <= "2020-06-30" & author.n==1) %>% group_by(round_date(as.Date(submitted), unit="weeks", week_start = getOption("lubridate.week.start", 1))) %>% summarize(female.n=sum(female.n, na.rm=TRUE), male.n=sum(male.n, na.rm=TRUE))))
@@ -505,10 +494,12 @@ Anova(lm2, type=3)
 ```
 
 Again, the number of preprints single-authored by men is growing faster
-than the number of preprints single-authored by
-women.
+than the number of preprints single-authored by women.
 
-### Comparing arXiv preprint submissions by authorship position in the months before and during COVID-19 pandemic, by gender
+### Comparing arXiv preprint submissions by authorship position in the months before and during the COVID-19 pandemic, by gender
+
+Let’s do the same for first, middle, and last authorships on
+multi-authored preprints.
 
 ##### First authorships
 
@@ -583,8 +574,7 @@ Anova(lm3, type=3)
 #plot(lm3)
 ```
 
-Men first authorships are growing faster than women first
-authorships.
+Men first authorships are growing faster than women first authorships.
 
 ##### Last authors
 
@@ -659,8 +649,7 @@ Anova(lm4, type=3)
 #plot(lm4)
 ```
 
-Men last authorships are growing faster than women last
-authorships.
+Men last authorships are growing faster than women last authorships.
 
 ### Middle authors
 
@@ -996,8 +985,7 @@ df.b.all2020.output <- as.data.frame(apply(df.b.all2020,2,as.character))
 write.csv(df.b.all2020.output, "Data/biorxiv_full_authors_2020_gender.csv") #Save data
 ```
 
-Next we calculated some summary statistics for the bioRxiv
-dataset.
+Next we calculated some summary statistics for the bioRxiv dataset.
 
 ``` r
 df.b.full <- read.csv("~/Dropbox/Megan2020/Pandemic Penalty/biorxiv_full_authors_gender.csv")
@@ -1041,8 +1029,7 @@ authors.
 ### Comparing bioRxiv preprint authorships between Mar/Apr 2019 and Mar/Apr 2020, by gender
 
 How many men and women authorships were there on bioRxiv preprints
-between Mar/Apr 2019 and
-2020?
+between Mar/Apr 2019 and 2020?
 
 ``` r
 all <- as.data.frame(ungroup(df.b.full %>% group_by(year) %>% summarize(Female = sum(female.n, na.rm=TRUE), Male = sum(male.n, na.rm=TRUE)))) #Summarize by year
@@ -1070,8 +1057,7 @@ authorships.
 ### Comparing single-authored biorXiv preprints between Mar/Apr 2019 and Mar/Apr 2020, by gender
 
 How many bioRxiv preprints were authored by a single woman versus a
-single man in Mar/Apr, 2020, compared to the same dates last
-year?
+single man in Mar/Apr, 2020, compared to the same dates last year?
 
 ``` r
 sole.authors <- as.data.frame(ungroup(subset(df.b.full, author.n == 1) %>% group_by(year) %>% summarize(Female = sum(female.n, na.rm=TRUE), Male = sum(male.n, na.rm=TRUE)))) #Summarize by year
@@ -1093,8 +1079,7 @@ than women.
 ### Comparing bioRxiv preprint submissions by author position
 
 What if we break it down further by author position, so first, middle,
-or last, as for arXiv
-preprints?
+or last, as for arXiv preprints?
 
 ##### First authors
 
@@ -1113,8 +1098,7 @@ Both as a percent change and an absolute change year-over-year, there
 was a larger increase in the number of women first authorships than the
 number of men first authorships. In absolute terms, there were an
 additional 354 women first authorships and 291 men first authorships in
-Mar/Apr 2020, compared to Mar/Apr
-2019.
+Mar/Apr 2020, compared to Mar/Apr 2019.
 
 ##### Last authors
 
@@ -1131,8 +1115,7 @@ p16
 
 In contrast to first authorships, growth in the number of men last
 authorships outpaced growth in the number of women first authorships
-between Mar/Apr 2019 and Mar/Apr
-2020.
+between Mar/Apr 2019 and Mar/Apr 2020.
 
 #### Middle authors
 
@@ -1151,14 +1134,12 @@ p17
 ![](README_files/figure-gfm/bioRxiv%20middle%20authors%20year-over-year-1.png)<!-- -->
 
 There was also slightly more growth in the number of men than women
-middle authorships in Mar/Apr 2020, compared to Mar/Apr
-2019.
+middle authorships in Mar/Apr 2020, compared to Mar/Apr 2019.
 
-### Comparing bioRxiv preprint submissions in the months before and during COVID-19 pandemic, by gender
+### Comparing bioRxiv preprint submissions in the months before and during the COVID-19 pandemic, by gender
 
 As for arXiv submissions, we also compared bioRxiv submissions across
-months for early
-2020.
+months for early 2020.
 
 ``` r
 biorxiv <- as.data.frame(ungroup(subset(df.b.all2020, as.Date(date) >= "2020-01-01" & as.Date(date) <= "2020-06-30") %>% group_by(round_date(as.Date(date), unit="weeks", week_start = getOption("lubridate.week.start", 1))) %>% summarize(female.n=sum(female.n, na.rm=TRUE), male.n=sum(male.n, na.rm=TRUE))))
@@ -1232,11 +1213,13 @@ Anova(lm6, type=3)
 #plot(lm6)
 ```
 
-### Comparing single-authored bioRxiv preprint submissions in the months before and during COVID-19 pandemic, by gender
+The model results indicate no difference between men and women in the
+rate of increase of preprint submissions from January to June, 2020.
+
+### Comparing single-authored bioRxiv preprint submissions in the months before and during the COVID-19 pandemic, by gender
 
 Again, what about for sole authorships? How does early 2020 compare to
-during the
-pandemic?
+during the pandemic?
 
 ``` r
 biorxiv.sole <- as.data.frame(ungroup(subset(df.b.all2020, as.Date(date) >= "2020-01-01" & as.Date(date) <= "2020-06-30" & author.n==1) %>% group_by(round_date(as.Date(date), unit="weeks", week_start = getOption("lubridate.week.start", 1))) %>% summarize(female.n=sum(female.n, na.rm=TRUE), male.n=sum(male.n, na.rm=TRUE))))
@@ -1309,6 +1292,9 @@ Anova(lm7, type=3)
 ``` r
 #plot(lm7)
 ```
+
+Again, the model results indicate no difference between men and women in
+the rate of increase through time of sole-authored bioRxiv preprints.
 
 ##### First authorships
 
@@ -1383,6 +1369,9 @@ Anova(lm8, type=3)
 #plot(lm8)
 ```
 
+Again, no gender difference in the rate of increase in first authorships
+of multi-authored bioRxiv preprints.
+
 ##### Last authorships
 
 ``` r
@@ -1453,10 +1442,12 @@ Anova(lm9, type=3)
     ## Signif. codes:  0 '***' 0.001 '**' 0.01 '*' 0.05 '.' 0.1 ' ' 1
 
 ``` r
-plot(lm9)
+#plot(lm9)
 ```
 
-![](README_files/figure-gfm/Early%202020%20bioRxiv%20last%20author%20analysis-2.png)<!-- -->![](README_files/figure-gfm/Early%202020%20bioRxiv%20last%20author%20analysis-3.png)<!-- -->![](README_files/figure-gfm/Early%202020%20bioRxiv%20last%20author%20analysis-4.png)<!-- -->![](README_files/figure-gfm/Early%202020%20bioRxiv%20last%20author%20analysis-5.png)<!-- -->
+In contrast to sole and first authorships, the number of men last
+authorships has grown faster than the number of women last authorships
+of bioRxiv preprints from January to June, 2020.
 
 ### Middle authorships
 
@@ -1532,6 +1523,9 @@ Anova(lm10, type=3)
 #plot(lm10)
 ```
 
+Similar to first and sole authorships, there is no gender difference in
+the rate of increase in middle authorships from January to June, 2020.
+
 ### Omnibus figures
 
 ``` r
@@ -1554,3 +1548,11 @@ p24
 ``` r
 save_plot("early2020_biorxiv.png", p24, base_height=8, base_width=10, dpi=600)
 ```
+
+## Take-home message
+
+The arXiv preprint dataset fairly consistently shows a widening gender
+gap across author positions, suggesting that women are falling behind
+men in submitting arXiv preprints during the COVID-19 pandemic. The
+picture is less clear-cut for bioRxiv, but women are still falling
+behind men in last authorships of multi-authored bioRxiv preprints.
