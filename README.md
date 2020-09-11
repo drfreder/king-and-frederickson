@@ -4,10 +4,16 @@ Productivity
 Megan Frederickson and Molly King
 September 11, 2020
 
-We quantified how the COVID-19 pandemic is affecting the gender
-breakdown of preprint submissions to [arXiv](https://arxiv.org/) and
-[bioRxiv](https://www.biorxiv.org/), two preprint servers that together
-cover many STEM fields.
+This repo contains the data and code for the analyses in:
+
+King MM, Frederickson ME. The Pandemic Penalty: COVID-19’s gendered
+impact on scientific productivity. Currently under review, preprint soon
+to be available on SocArXiv.
+
+In the paper, we quantified how the COVID-19 pandemic is affecting the
+gender breakdown of preprint submissions to [arXiv](https://arxiv.org/)
+and [bioRxiv](https://www.biorxiv.org/), two preprint servers that
+together cover many STEM fields.
 
 We used these packages:
 
