@@ -1,7 +1,7 @@
 ---
 title: "The Pandemic Penalty: COVID-19's Gendered Impact on Scientific Productivity"
 author: "Megan Frederickson and Molly King"
-date: "February 3, 2021"
+date: "December 29, 2020"
 output: github_document
 editor_options: 
   chunk_output_type: console
@@ -11,9 +11,9 @@ editor_options:
 knitr::opts_chunk$set(echo = TRUE)
 ```
 
-This repo contains the data and code for the analyses in:
+This repo updates the data and code for the analyses in:
 
-King MM, Frederickson ME. The Pandemic Penalty: COVID-19's gendered impact on scientific productivity. Currently under review, preprint available on SocArXiv. The repo was updated on in early February, 2021 after receiving reviewer comments.
+King MM, Frederickson ME. The Pandemic Penalty: COVID-19's gendered impact on scientific productivity. Currently under review, preprint soon to be available on SocArXiv. 
 
 In the paper, we quantified how the COVID-19 pandemic is affecting the gender breakdown of preprint submissions to [arXiv](https://arxiv.org/) and [bioRxiv](https://www.biorxiv.org/), two preprint servers that together cover many STEM fields. 
 
@@ -42,66 +42,45 @@ We scraped submission data from arXiv, a preprint server for physics, math, comp
 
 Karthik, R. and K. Broman (2019). aRxiv: Interface to the arXiv API. R package version 0.5.19. https://CRAN.R-project.org/package=aRxiv
   
-We began by scraping all records for March 15-April 15, 2020, during the COVID-19 pandemic, and for the same date range in 2019. Then, we expanded to scrape all the data for Jan 1, 2020 to June 30, 2020, inclusive. We scraped the data in batches, as recommended in the aRxiv package tutorial. For brevity, we are not reproducing the code here, but it is available in the [R markdown file](https://github.com/drfreder/king-and-frederickson/master/README.Rmd) included in this repo.
+We scraped the data in batches, as recommended in the aRxiv package tutorial. For brevity, we are not reproducing the code here, but it is available in the [R markdown file](https://github.com/drfreder/king-and-frederickson/master/README.Rmd) included in this repo.
+
+We previously scraped data through June 30, 2020. Here, we add data from July 1, 2020 through December 28, 2020. 
 
 ```{r Scrape arXiv, include=FALSE, message=FALSE, warning=FALSE, eval=FALSE}
 #Not run
-#Get all submissions between March 15, 2020 and April 15, 2020 (during the COVID-19 pandemic)
-n.2020 <- arxiv_count(query = 'submittedDate:[202003150000 TO 202004152400]')
-df.2020.1 <- arxiv_search(query = 'submittedDate:[202003150000 TO 202003212400]', limit=n.2020, batchsize=1000)
-df.2020.2 <- arxiv_search(query = 'submittedDate:[202003220000 TO 202003282400]', limit=n.2020, batchsize=1000)
-df.2020.3 <- arxiv_search(query = 'submittedDate:[202003290000 TO 202004032400]', limit=n.2020, batchsize=1000)
-df.2020.4 <- arxiv_search(query = 'submittedDate:[202004040000 TO 202004092400]', limit=n.2020, batchsize=1000)
-df.2020.5 <- arxiv_search(query = 'submittedDate:[202004100000 TO 202004121415]', limit=n.2020, batchsize=2000)
-df.2020.6 <- arxiv_search(query = 'submittedDate:[202004121420 TO 202004152400]', limit=n.2020, batchsize=1000)
-df.2020.full <- rbind(df.2020.1, df.2020.2, df.2020.3, df.2020.4, df.2020.5, df.2020.6)
-n.2020-length(df.2020.full$id) #Check that the number of records matches
-write.csv(df.2020.full, file="Data/arxiv_2020_data.csv")
+#July to December data
+n.update <- arxiv_count(query = 'submittedDate:[202007010000 TO 202012282400]')
+n.update.1 <- arxiv_count(query = 'submittedDate:[202007010000 TO 202007152400]')
+df.update.1 <- arxiv_search(query = 'submittedDate:[202007010000 TO 202007152400]', limit=n.update.1, batchsize=2000)
+n.update.2 <- arxiv_count(query = 'submittedDate:[202007160000 TO 202007312400]')
+df.update.2 <- arxiv_search(query = 'submittedDate:[202007160000 TO 202007312400]', limit=n.update.2, batchsize=2000)
+n.update.3 <- arxiv_count(query = 'submittedDate:[202008010000 TO 202008152400]')
+df.update.3 <- arxiv_search(query = 'submittedDate:[202008010000 TO 202008152400]', limit=n.update.3, batchsize=2000)
+n.update.4 <- arxiv_count(query = 'submittedDate:[202008160000 TO 202008312400]')
+df.update.4 <- arxiv_search(query = 'submittedDate:[202008160000 TO 202008312400]', limit=n.update.4, batchsize=2000)
+n.update.5 <- arxiv_count(query = 'submittedDate:[202009010000 TO 202009152400]')
+df.update.5 <- arxiv_search(query = 'submittedDate:[202009010000 TO 202009152400]', limit=n.update.5, batchsize=2000)
+n.update.6 <- arxiv_count(query = 'submittedDate:[202009160000 TO 202009302400]')
+df.update.6 <- arxiv_search(query = 'submittedDate:[202009160000 TO 202009302400]', limit=n.update.6, batchsize=2000)
+n.update.7 <- arxiv_count(query = 'submittedDate:[202010010000 TO 202010152400]')
+df.update.7 <- arxiv_search(query = 'submittedDate:[202010010000 TO 202010152400]', limit=n.update.7, batchsize=2000)
+n.update.8 <- arxiv_count(query = 'submittedDate:[202010160000 TO 202010312400]')
+df.update.8 <- arxiv_search(query = 'submittedDate:[202010160000 TO 202010312400]', limit=n.update.8, batchsize=2000)
+n.update.9 <- arxiv_count(query = 'submittedDate:[202011010000 TO 202011102400]')
+df.update.9 <- arxiv_search(query = 'submittedDate:[202011010000 TO 202011102400]', limit=n.update.9, batchsize=2000)
+n.update.10 <- arxiv_count(query = 'submittedDate:[202011120000 TO 202011302400]')
+df.update.10 <- arxiv_search(query = 'submittedDate:[202011120000 TO 202011302400]', limit=n.update.10, batchsize=2000)
+#Records for Nov 11 giving me error messages
+#n.update.11 <- arxiv_count(query = 'submittedDate:[202011110600 TO 202011111200]')
+#df.update.11 <- arxiv_search(query = 'submittedDate:[202011110600 TO 202011111200]', limit=n.update.11, batchsize=500)
+n.update.12 <- arxiv_count(query = 'submittedDate:[202012010000 TO 202012282400]')
+df.update.12 <- arxiv_search(query = 'submittedDate:[202012010000 TO 202012282400]', limit=n.update.12, batchsize=2000)
 
-#Get all submission between March 15, 2019 and April 15, 2019 (the same dates last year)
-n.2019 <- arxiv_count(query = 'submittedDate:[201903150000 TO 201904152400]')
-df.2019.1 <- arxiv_search(query = 'submittedDate:[201903150000 TO 201903222400]', limit=n.2019, batchsize=2000)
-df.2019.2 <- arxiv_search(query = 'submittedDate:[201903230000 TO 201903292400]', limit=n.2019, batchsize=2000)
-df.2019.3 <- arxiv_search(query = 'submittedDate:[201903300000 TO 201904052400]', limit=n.2019, batchsize=2000)
-df.2019.4 <- arxiv_search(query = 'submittedDate:[201904060000 TO 201904122400]', limit=n.2019, batchsize=2000)
-df.2019.5 <- arxiv_search(query = 'submittedDate:[201904130000 TO 201904152400]', limit=n.2019, batchsize=2000)
-df.2019.full <- rbind(df.2019.1, df.2019.2, df.2019.3, df.2019.4, df.2019.5)
-n.2019-length(df.2019.full$id)
-write.csv(df.2019.full, file="Data/arxiv_2019_data.csv")
-
-#Get all submissions between Jan. 1, 2020 and March 15, 2020
-n.early2020 <- arxiv_count(query = 'submittedDate:[202001010000 TO 202003152400]')
-df.early2020.1 <- arxiv_search(query = 'submittedDate:[202001010000 TO 202001152400]', limit=n.early2020, batchsize=2000)
-df.early2020.2 <- arxiv_search(query = 'submittedDate:[202001160000 TO 202001312400]', limit=n.early2020, batchsize=2000)
-df.early2020.3 <- arxiv_search(query = 'submittedDate:[202002010000 TO 202002152400]', limit=n.early2020, batchsize=2000)
-df.early2020.4 <- arxiv_search(query = 'submittedDate:[202002160000 TO 202002292400]', limit=n.early2020, batchsize=2000)
-df.early2020.5 <- arxiv_search(query = 'submittedDate:[202003010000 TO 202003152400]', limit=n.early2020, batchsize=2000)
-df.early2020.full <- rbind(df.early2020.1, df.early2020.2, df.early2020.3, df.early2020.4, df.early2020.5)
-n.early2020-length(df.early2020.full$id)
-write.csv(df.early2020.full, file="Data/arxiv_early2020_data.csv")
-
-#Get all submissions between Apr. 16, 2020 and April 30, 2020
-n.update <- arxiv_count(query = 'submittedDate:[202004160000 TO 202004222400]')
-df.update <- arxiv_search(query = 'submittedDate:[202004160000 TO 202004222400]', limit=n.update, batchsize=2000)
+df.update <- rbind(df.update.1, df.update.2, df.update.3, df.update.4, df.update.5, df.update.6, df.update.7, df.update.8, df.update.9, df.update.10, df.update.12)
 n.update - length(df.update$id)
-write.csv(df.update, file="Data/arxiv_update2020_data.csv")
-
-n.update.2 <- arxiv_count(query = 'submittedDate:[202004230000 TO 202004302400]')
-df.update.2 <- arxiv_search(query = 'submittedDate:[202004230000 TO 202004302400]', limit=n.update.2, batchsize=2000)
-n.update.2 - length(df.update.2$id)
-write.csv(df.update.2, file="Data/arxiv_update2020_2_data.csv")
-
-#May and June data
-n.update.3 <- arxiv_count(query = 'submittedDate:[202005010000 TO 202006302400]')
-df.update.3 <- arxiv_search(query = 'submittedDate:[202005010000 TO 202005152400]', limit=n.update.3, batchsize=2000)
-df.update.4 <- arxiv_search(query = 'submittedDate:[202005160000 TO 202005312400]', limit=n.update.3, batchsize=2000)
-df.update.5 <- arxiv_search(query = 'submittedDate:[202006010000 TO 202006152400]', limit=n.update.3, batchsize=2000)
-df.update.6 <- arxiv_search(query = 'submittedDate:[202006160000 TO 202006302400]', limit=n.update.3, batchsize=2000)
-df.update.7 <- rbind(df.update.3, df.update.4, df.update.5, df.update.6)
-n.update.3 - length(df.update.7$id)
 
 #n.update - length(df.update$id)
-write.csv(df.update.7, file="Data/arxiv_updateMayJune2020_data.csv")
+write.csv(df.update, file="Data/arxiv_JulDec2020_data.csv")
 ```
  
 Next, we assigned gender to author names using the gender package, see:
@@ -112,7 +91,7 @@ This package returns the probability that a first name belongs to a woman or a m
 
 Please note: this is a brute force method of predicting gender, and it has many limitations, as discussed by the package authors on their GitHub repo and included links. By using this method, we are not assuming that individuals are correctly gendered in the resulting dataset, but merely that it provides insight into gender's effects in aggregate across the population of preprint authors. 
 
-This code takes a while to run, so it is not run when rendering this markdown document.
+This code takes a while to run, so it is not run when knitting this markdown document.
 
 ```{r Predict arXiv author gender, eval=FALSE, message=FALSE, warning=FALSE}
 #Not run
@@ -126,7 +105,8 @@ df.early2020 <- read.csv("Data/arxiv_early2020_data.csv")
 df.update <- read.csv("Data/arxiv_update2020_data.csv")
 df.update.2 <- read.csv("Data/arxiv_update2020_2_data.csv")
 df.mayjune2020 <- read.csv("Data/arxiv_updateMayJune2020_data.csv")
-df.all2020 <- rbind(df.2020, df.early2020, df.update, df.update.2, df.mayjune2020) #Full 2020 data
+df.2020.part2 <- read.csv("Data/arxiv_JulDec2020_data.csv")
+df.all2020 <- rbind(df.2020, df.early2020, df.update, df.update.2, df.mayjune2020, df.2020.part2) #Full 2020 data
 
 split.names <- function(x){strsplit(as.character(x), "|", fixed=TRUE)} #Function to split strings of author names
 last.author <- function(x){gsub(".*\\|", "", as.character(x))} #Function to extract last author
@@ -175,7 +155,7 @@ df.full$female.mid.authors.n <- ifelse(df.full$author.n > 1, (df.full$female.n -
 df.full$male.mid.authors.n <- ifelse(df.full$author.n > 1, (df.full$male.n - ifelse(df.full$first.author.gender %in% "male", 1, 0) - ifelse(df.full$last.author.gender %in% "male", 1, 0)), 0)
 
 df.full.output <- as.data.frame(apply(df.full,2,as.character)) 
-write.csv(df.full.output, "Data/arxiv_full_gender.csv") #Save data
+write.csv(df.full.output, "Data/arxiv_full_gender_all2020.csv") #Save data
 
 #Same for the early 2020 dataset
 df.all2020$split.names <- lapply(df.all2020$authors, split.names)
@@ -215,17 +195,17 @@ df.all2020$female.mid.authors.n <- ifelse(df.all2020$author.n > 1, (df.all2020$f
 df.all2020$male.mid.authors.n <- ifelse(df.all2020$author.n > 1, (df.all2020$male.n - ifelse(df.all2020$first.author.gender %in% "male", 1, 0) - ifelse(df.all2020$last.author.gender %in% "male", 1, 0)), 0)
 
 df.all2020.output <- as.data.frame(apply(df.all2020,2,as.character))
-write.csv(df.all2020.output, "Data/arxiv_all2020_gender.csv") #Save data
+write.csv(df.all2020.output, "Data/arxiv_all2020fullyear_gender.csv") #Save data
 ```
 
-Next, we calculated some summary statistics for the arXiv dataset we assembled. We also determined which preprints list authors in alphabetical order in order to better understand author order conventions in this dataset. 
+Next, we calculated some summary statistics for the arXiv dataset we assembled.
 
 ```{r Summarize arXiv dataset, message=FALSE, warning=FALSE}
-df.full <- read.csv("~/Dropbox/Megan2020/Pandemic Penalty/arxiv_full_gender.csv") #Read in data
+df.full <- read.csv("Data/arxiv_full_gender_all2020.csv") #Read in data
 df.full <- df.full[!duplicated(df.full), ] #Remove duplicates, if any
 df.full$year <- as.factor(year(as.Date(df.full$submitted))) #Extract year
 
-df.all2020 <- read.csv("~/Dropbox/Megan2020/Pandemic Penalty/arxiv_all2020_gender.csv") #Read in data
+df.all2020 <- read.csv("Data/arxiv_all2020fullyear_gender.csv") #Read in data
 df.all2020 <- df.all2020[!duplicated(df.all2020), ] #Remove duplicated rows, if any
 df.all2020$year <- as.factor(year(as.Date(df.all2020$submitted))) #Extract year
 
@@ -241,79 +221,11 @@ year.arxiv.authors <- sum(df.full[, "male.n"]+df.full[, "female.n"]) #Authors wi
 
 #preprints per year
 yr.summary <- df.full %>% group_by(year) %>% summarize(n=n())
-
-#Write a function to test whether author names are in alphabetical order
-last.names.alpha <- function(x) {
-      tmp <- as.data.frame(strsplit(as.character(x), "|", fixed=TRUE))
-      colnames(tmp) <- c("names")
-      tmp$names <- word(tmp$names, -1)
-      tmp$names.alpha <- str_sort(tmp$names)
-      tmp$match <- identical(tmp$names, tmp$names.alpha)
-      ifelse(length(tmp$names) >= 2, ifelse(sum(tmp$match, na.rm=TRUE) > 0, "Y", "N"), NA)
-}
-
-#Apply alphabetical function
-all.arxiv$authors.alpha <- lapply(all.arxiv$authors, last.names.alpha) #Apply functions
-df.full$authors.alpha <- lapply(df.full$authors, last.names.alpha)
-df.all2020$authors.alpha <- lapply(df.all2020$authors, last.names.alpha)
-
-#Make 'big' categories
-all.arxiv$big.category <- word(all.arxiv$primary_category,1,sep = "\\.")
 ```
 
 There are `r total.preprints` preprints in the full arXiv dataset, with a total of `r format(total.authors, scientific=FALSE)` non-unique authors. We inferred the gender of `r total.authors.with.gender` authors, or `r per.gender`%, with the rest omitted from subsequent analyses. This a lower success rate for predicting author gender for the arXiv dataset than for the bioRxiv dataset (see below), reflecting the fact that arXiv preprints are more likely to list large consortia as authors (e.g., CMS Collaboration) or have authors who have names not in the U.S. Social Security names database. 
 
 For just the comparison of March 15-April 15, 2020 with the same dates in 2019, there are `r year.arxiv.preprints` arXiv preprints with `r year.arxiv.authors` authors for whom we inferred gender.
-
-We analyzed the data by authorship position (e.g., first, middle, last, or sole author). In many but not all STEM fields, it is convention to list the Principal Investigator (PI) as last author on the paper, and the person who led the study and wrote the first draft of the manuscript as first author on the paper, with other authors as middle authors. However, some fields list authors in alphabetical order. In the full arXiv dataset, among preprints with multiple (i.e., 2 or more) authors, there are `r length(all.arxiv[all.arxiv$authors.alpha == "N", "authors.alpha"])` preprints with authors not in alphabetical order, and `r length(all.arxiv[all.arxiv$authors.alpha == "Y", "authors.alpha"])` preprints with authors in alphabetical order. In other words, `r round((length(all.arxiv[all.arxiv$authors.alpha == "Y", "authors.alpha"])/(length(all.arxiv[all.arxiv$authors.alpha == "N", "authors.alpha"])+length(all.arxiv[all.arxiv$authors.alpha == "Y", "authors.alpha"])))*100, 1)`% of preprints with multiple authors list authors in alphabetical order.
-
-### Exploring author order across fields
-
-Reviewers also asked for some more information about the fields represented in the arXiv dataset. We used the category taxonomy available on the arXiv website itself (https://arxiv.org/category_taxonomy) to categorize preprints into 8 broad fields: physics, math, computer science, statistics, quantitative biology, economics, quantitative finance, and electrical engineering and systems science. We further combined economics and quantitative finance preprints into a single category, because each one had few preprints. How does the number of arXiv preprints compare among fields?
-
-```{r Author order, message=FALSE, warning=FALSE, dpi=300}
-#Bin all physics sub-disciplines into "physics"
-all.arxiv$field <- ifelse(all.arxiv$big.category == "astro-ph" | all.arxiv$big.category == "cond-mat" | all.arxiv$big.category == "gr-qc" | all.arxiv$big.category == "math-ph" | all.arxiv$big.category == "quant-ph" | all.arxiv$big.category == "nucl-ex" | all.arxiv$big.category == "nucl-th" | all.arxiv$big.category == "hep-ex" | all.arxiv$big.category == "hep-ph" | all.arxiv$big.category == "hep-th" | all.arxiv$big.category == "hep-lat" | all.arxiv$big.category == "nlin", "physics", all.arxiv$big.category)
-
-#Lump quantitative finance and economics together
-all.arxiv$field <- ifelse(all.arxiv$field == "q-fin", "econ", all.arxiv$field)
-
-#Count preprints per field
-field.summary <- all.arxiv %>% group_by(field) %>% summarize(n=n())
-
-#Make a figure
-p25 <- ggplot(data=field.summary, aes(x=reorder(field, n), y=n))+xlab("Field")+ylab("Preprints (no.)")+geom_bar(stat="identity", alpha=0.5)+theme_cowplot()+theme(axis.text.x=element_text(angle=90))+labs(title="arXiv", subtitle="by field")
-p25
-```
-
-The arXiv dataset is dominated by preprints in physics, math, and computer science. 
-
-How many preprints in each field list authors in alphabetical order? 
-
-```{r Fields in alphabetical order, message=FALSE, warning=FALSE, fig.width=8, fig.height=4, dpi=300}
-#Count the number of preprints with authors in alphabetical order, and the total number of preprints in each field
-author.order.summary <- subset(all.arxiv, !is.na(authors.alpha)) %>% group_by(field, authors.alpha) %>% summarize(n=n())
-author.order.summary.wide <- spread(author.order.summary, key=authors.alpha, value=n)
-author.order.summary.wide$per <- 100*(author.order.summary.wide$Y/(author.order.summary.wide$N+author.order.summary.wide$Y))
-author.order.summary.wide$field <-factor(author.order.summary.wide$field, levels=c("econ", "q-bio", "stat", "eess", "math", "cs", "physics"))
-
-#Plot percent of preprints with authors in alphabetical order
-p26 <- ggplot(data=author.order.summary.wide, aes(x=field, y=per))+xlab("Field")+ylab("Authors in alphabetical order (%)")+geom_bar(stat="identity", alpha=0.5)+theme_cowplot()+theme(axis.text.x=element_text(angle=90))+labs(title="arXiv", subtitle="by field")
-p40 <- plot_grid(p25, p26, labels="auto")
-save_plot("Figure S1.png", p40, base_width = 8, base_height =4, dpi=600)
-
-#Summarize 
-all.arxiv$author.n.bin <- ifelse(all.arxiv$author.n >= 8, 8, all.arxiv$author.n)
-all.arxiv.summary.long <- all.arxiv %>% group_by(author.n.bin, authors.alpha) %>% summarize(n=n())
-all.arxiv.summary.wide <- spread(all.arxiv.summary.long, key=authors.alpha, value=n)
-all.arxiv.summary.wide$expected.y <- round(ifelse(all.arxiv.summary.wide$author.n.bin < 8, 100*(1/factorial(all.arxiv.summary.wide$author.n.bin)), 100*(1/factorial(8))), 1) #Expect percent alphabetical (if random)
-all.arxiv.summary.wide$per <- 100*(all.arxiv.summary.wide$Y/(all.arxiv.summary.wide$Y + all.arxiv.summary.wide$N))
-  
-#Figure
-p36 <- ggplot(data=subset(all.arxiv.summary.wide, author.n.bin > 1))+geom_bar(aes(x=author.n.bin, y=per), stat="identity", alpha=0.5)+geom_line(aes(x=author.n.bin, y=expected.y), colour="red")+geom_point(aes(x=author.n.bin, y=expected.y), colour="red", size=3)+theme_cowplot()+xlab("Authors on a preprint (no.)")+ylab("Authors in alphabetical order (%)")+scale_x_continuous(breaks=c(2:8), labels=c("2", "3", "4", "5", "6", "7", "8+"))+labs(title="arXiv", subtitle="all fields")
-```
-
-Economics and quantitative finance (combined into "econ" in the figure) and math are the fields with most preprints listing authors in alphabetical order. These are the fields for which author position (e.g., first, middle, or last) is least likely to be meaningful. 
 
 ### Comparing arXiv preprint authorships between Mar/Apr 2019 and Mar/Apr 2020, by gender
 
@@ -335,59 +247,6 @@ p1
 ```
 
 arXiv preprint submissions are up overall, but the number of men authorships is currently growing faster than the number of women authorships. Comparing preprint submissions in late March and early April 2020 to the same dates in 2019, the number of men authorships has grown more than the number of women authorships, both as a percent change and in absolute terms. 
-
-We further investigated this patterns in the fields with the greatest numbers of preprints in arXiv, namely physics, computer science, and math. 
-
-```{r Visualize arXiv year-over-year data by field, message=FALSE, warning=FALSE, fig.width=8, fig.height=4, dpi=300}
-#Bin all physics sub-disciplines into "physics"
-df.full$big.category <- word(df.full$primary_category,1,sep = "\\.")
-df.full$field <- ifelse(df.full$big.category == "astro-ph" | df.full$big.category == "cond-mat" | df.full$big.category == "gr-qc" | df.full$big.category == "math-ph" | df.full$big.category == "quant-ph" | df.full$big.category == "nucl-ex" | df.full$big.category == "nucl-th" | df.full$big.category == "hep-ex" | df.full$big.category == "hep-ph" | df.full$big.category == "hep-th" | df.full$big.category == "hep-lat" | df.full$big.category == "nlin", "physics", df.full$big.category)
-df.full$field <- ifelse(df.full$field == "q-fin", "econ", df.full$field) #Lump quantitative finance and economics together
-
-#Set labels and colours
-yr.labels = c("Mar. 15 - Apr. 15, 2019", "Mar. 15 - Apr. 15, 2020") #Set legend labels
-colours1 = c("#f4a582","#ca0020") #Set colours
-fontsize = 10
-
-#Physics
-cat <- as.character(unique(df.full$field)[[1]])
-all <- as.data.frame(ungroup(subset(df.full, field == cat) %>% group_by(year) %>% summarize(Female = sum(female.n, na.rm=TRUE), Male = sum(male.n, na.rm=TRUE)))) #Summarize by year
-all.long <- gather(all, Gender, number, Female:Male) #Make wide data long
-all.t <- as.data.frame(t(all[,-1])) #Transpose
-colnames(all.t) <- c("2019", "2020") #Fix column names
-all.t$per.dif.1920 <- ((all.t$`2020`-all.t$`2019`)/(all.t$`2019`))*100 #Calculate percent change, 2020 over 2019
-
-#Make figure comparing 2020 to 2019
-p27 <- ggplot(data=all.long, aes(fill=as.factor(year), y=number, x=Gender))+geom_bar(position="dodge", stat="identity")+theme_cowplot()+xlab("Gender")+ylab("Authorships (no.)")+labs(fill="Year")+scale_fill_manual(values=colours1, labels=yr.labels)+theme(legend.position = "top", legend.justification="left", legend.title = element_blank(), legend.text = element_text(size=fontsize))+ggplot2::annotate("text", x=c(1, 2),  y=c(4700,13800), label = paste0(round(all.t$per.dif.1920[1:2], 1), "%"))+labs(title="arXiv", subtitle=paste0(cat, ", all authorships"))+guides(fill=guide_legend(nrow=2))+scale_x_discrete(labels=c("Women", "Men"))
-
-#Math
-cat <- as.character(unique(df.full$field)[[2]])
-all <- as.data.frame(ungroup(subset(df.full, field == cat) %>% group_by(year) %>% summarize(Female = sum(female.n, na.rm=TRUE), Male = sum(male.n, na.rm=TRUE)))) #Summarize by year
-all.long <- gather(all, Gender, number, Female:Male) #Make wide data long
-all.t <- as.data.frame(t(all[,-1])) #Transpose
-colnames(all.t) <- c("2019", "2020") #Fix column names
-all.t$per.dif.1920 <- ((all.t$`2020`-all.t$`2019`)/(all.t$`2019`))*100 #Calculate percent change, 2020 over 2019
-
-#Make figure comparing 2020 to 2019
-p28 <- ggplot(data=all.long, aes(fill=as.factor(year), y=number, x=Gender))+geom_bar(position="dodge", stat="identity")+theme_cowplot()+xlab("Gender")+ylab("Authorships (no.)")+labs(fill="Year")+scale_fill_manual(values=colours1, labels=yr.labels)+theme(legend.position = "top", legend.justification="left", legend.title = element_blank(), legend.text = element_text(size=fontsize))+labs(title="arXiv", subtitle=paste0(cat, ", all authorships"))+guides(fill=guide_legend(nrow=2))+scale_x_discrete(labels=c("Women", "Men"))+ggplot2::annotate("text", x=c(1, 2),  y=c(1200,4000), label = c(paste0(round(all.t$per.dif.1920[1], 1), "%"), paste0("+", round(all.t$per.dif.1920[2], 1), "%")))
-
-#Computer Science
-cat <- as.character(unique(df.full$field)[[3]])
-all <- as.data.frame(ungroup(subset(df.full, field == cat) %>% group_by(year) %>% summarize(Female = sum(female.n, na.rm=TRUE), Male = sum(male.n, na.rm=TRUE)))) #Summarize by year
-all.long <- gather(all, Gender, number, Female:Male) #Make wide data long
-all.t <- as.data.frame(t(all[,-1])) #Transpose
-colnames(all.t) <- c("2019", "2020") #Fix column names
-all.t$per.dif.1920 <- ((all.t$`2020`-all.t$`2019`)/(all.t$`2019`))*100 #Calculate percent change, 2020 over 2019
-
-#Make figure comparing 2020 to 2019
-p29 <- ggplot(data=all.long, aes(fill=as.factor(year), y=number, x=Gender))+geom_bar(position="dodge", stat="identity")+theme_cowplot()+xlab("Gender")+ylab("Authorships (no.)")+labs(fill="Year")+scale_fill_manual(values=colours1, labels=yr.labels)+theme(legend.position = "top", legend.justification="left", legend.title = element_blank(), legend.text = element_text(size=fontsize))+ggplot2::annotate("text", x=c(1, 2),  y=c(3000,9500), label = paste0("+", round(all.t$per.dif.1920[1:2], 1), "%"))+labs(title="arXiv", subtitle="cs, all authorships")+guides(fill=guide_legend(nrow=2))+scale_x_discrete(labels=c("Women", "Men"))
-
-p30 <- plot_grid(p27, p28, p29, nrow=1)
-p30
-save_plot("all_authorships_by_field.png", p30, base_height=4, base_width=8, dpi=600)
-```
-
-There has been a greater decline in women authorships than men authorships in physics and math, but not in computer science. 
 
 ### Comparing single-authored arXiv preprints between Mar/Apr 2019 and Mar/Apr 2020, by gender
 
@@ -467,18 +326,18 @@ Next, we looked back over the months leading up to widespread stay-at-home order
 ```{r Early 2020 arXiv all authors analysis, fig.height=4, fig.width=8, message=FALSE, warning=FALSE, dpi=300}
 
 #Aggregate data by week for figure
-arxiv <- as.data.frame(ungroup(subset(df.all2020, as.Date(submitted) >= "2020-01-01" & as.Date(submitted) <= "2020-06-30") %>% group_by(round_date(as.Date(submitted), unit="weeks", week_start = getOption("lubridate.week.start", 1))) %>% summarize(female.n=sum(female.n, na.rm=TRUE), male.n=sum(male.n, na.rm=TRUE))))
+arxiv <- as.data.frame(ungroup(subset(df.all2020, as.Date(submitted) >= "2020-01-01" & as.Date(submitted) <= "2020-12-27") %>% group_by(round_date(as.Date(submitted), unit="weeks", week_start = getOption("lubridate.week.start", 1))) %>% summarize(female.n=sum(female.n, na.rm=TRUE), male.n=sum(male.n, na.rm=TRUE))))
 arxiv.long <- gather(arxiv, gender, n, female.n:male.n)
 colnames(arxiv.long) <- c("week", "gender", "n")
 who <- "2020-03-11" #Date the WHO declared COVID-19 a pandemic, for reference
 arxiv.long$gender <- factor(arxiv.long$gender, rev(levels(as.factor(arxiv.long$gender))))
 colours2 = c("#7fbf7b","#af8dc3") #Set colours
 
-p6 <- ggplot(data=subset(arxiv.long, as.Date(week) >= "2020-01-01" & as.Date(week) <= "2020-06-28"), aes(x=as.Date(week), y=n, color=gender, shape=gender))+geom_point(size=2)+geom_smooth(method="lm", se=FALSE)+ylab("Authorships (no.)")+xlab("Date")+theme_cowplot()+scale_color_manual(name="Gender", labels=c("Men", "Women"), values=colours2)+labs(title="arXiv", subtitle="all authorships")+scale_shape_discrete(name="Gender", labels=c("Men", "Women"))+geom_vline(aes(xintercept=as.Date(who)), linetype="dashed")+scale_x_date(date_labels = "%b %Y")+theme(axis.text.x=element_text(angle=60, hjust=1), legend.position="top")
+p6 <- ggplot(data=subset(arxiv.long, as.Date(week) >= "2020-01-01" & as.Date(week) <= "2020-12-27"), aes(x=as.Date(week), y=n, color=gender, shape=gender))+geom_point(size=2)+geom_smooth(method="lm", se=FALSE)+ylab("Authorships (no.)")+xlab("Date")+theme_cowplot()+scale_color_manual(name="Gender", labels=c("Men", "Women"), values=colours2)+labs(title="arXiv", subtitle="all authorships")+scale_shape_discrete(name="Gender", labels=c("Men", "Women"))+geom_vline(aes(xintercept=as.Date(who)), linetype="dashed")+scale_x_date(date_labels = "%b %Y")+theme(axis.text.x=element_text(angle=60, hjust=1), legend.position="top")
 p6
 
 #Aggregate data by day for model
-arxiv <- as.data.frame(ungroup(subset(df.all2020, as.Date(submitted) >= "2020-01-01" & as.Date(submitted) <= "2020-06-30") %>% group_by(as.Date(submitted)) %>% summarize(female.n=sum(female.n, na.rm=TRUE), male.n=sum(male.n, na.rm=TRUE))))
+arxiv <- as.data.frame(ungroup(subset(df.all2020, as.Date(submitted) >= "2020-01-01" & as.Date(submitted) <= "2020-12-27") %>% group_by(as.Date(submitted)) %>% summarize(female.n=sum(female.n, na.rm=TRUE), male.n=sum(male.n, na.rm=TRUE))))
 arxiv.long <- gather(arxiv, gender, n, female.n:male.n)
 arxiv.long$day_of_week <- wday(arxiv.long$`as.Date(submitted)`, label=TRUE)
 arxiv.long$date <- as.numeric(arxiv.long$`as.Date(submitted)`)-18261
@@ -493,165 +352,22 @@ Anova(lm1, type=3)
 
 The number of male authorships is growing faster than the number of female authorships during the pandemic.
 
-Again, we repeated the analysis for physics, math, and computer science separately.
-
-```{r Early 2020 arXiv all authors analysis by field, fig.height=4, fig.width=8, message=FALSE, warning=FALSE, dpi=300}
-#Bin all physics sub-disciplines into "physics"
-df.all2020$big.category <- word(df.all2020$primary_category,1,sep = "\\.")
-df.all2020$field <- ifelse(df.all2020$big.category == "astro-ph" | df.all2020$big.category == "cond-mat" | df.all2020$big.category == "gr-qc" | df.all2020$big.category == "math-ph" | df.all2020$big.category == "quant-ph" | df.all2020$big.category == "nucl-ex" | df.all2020$big.category == "nucl-th" | df.all2020$big.category == "hep-ex" | df.all2020$big.category == "hep-ph" | df.all2020$big.category == "hep-th" | df.all2020$big.category == "hep-lat" | df.all2020$big.category == "nlin", "physics", df.all2020$big.category)
-
-#Lump quantitative finance and economics together
-df.all2020$field <- ifelse(df.all2020$field == "q-fin", "econ", df.all2020$field)
-
-#Set colours and reference date
-colours2 = c("#7fbf7b","#af8dc3") #Set colours
-who <- "2020-03-11" #Date the WHO declared COVID-19 a pandemic, for reference
-
-#Physics
-#Aggregate data by week for figure
-arxiv <- as.data.frame(ungroup(subset(df.all2020, as.Date(submitted) >= "2020-01-01" & as.Date(submitted) <= "2020-06-30" & field == "physics") %>% group_by(round_date(as.Date(submitted), unit="weeks", week_start = getOption("lubridate.week.start", 1))) %>% summarize(female.n=sum(female.n, na.rm=TRUE), male.n=sum(male.n, na.rm=TRUE))))
-arxiv.long <- gather(arxiv, gender, n, female.n:male.n)
-colnames(arxiv.long) <- c("week", "gender", "n")
-arxiv.long$gender <- factor(arxiv.long$gender, rev(levels(as.factor(arxiv.long$gender))))
-
-p31 <- ggplot(data=subset(arxiv.long, as.Date(week) >= "2020-01-01" & as.Date(week) <= "2020-06-28"), aes(x=as.Date(week), y=n, color=gender, shape=gender))+geom_point(size=2)+geom_smooth(method="lm", se=FALSE)+ylab("Authorships (no.)")+xlab("Date")+theme_cowplot()+scale_color_manual(name="Gender", labels=c("Men", "Women"), values=colours2)+labs(title="arXiv", subtitle="physics, all authorships")+scale_shape_discrete(name="Gender", labels=c("Men", "Women"))+geom_vline(aes(xintercept=as.Date(who)), linetype="dashed")+scale_x_date(date_labels = "%b %Y")+theme(axis.text.x=element_text(angle=60, hjust=1), legend.position="top")
-
-#Aggregate data by day for model
-arxiv <- as.data.frame(ungroup(subset(df.all2020, as.Date(submitted) >= "2020-01-01" & as.Date(submitted) <= "2020-06-30" & field == "physics") %>% group_by(as.Date(submitted)) %>% summarize(female.n=sum(female.n, na.rm=TRUE), male.n=sum(male.n, na.rm=TRUE))))
-arxiv.long <- gather(arxiv, gender, n, female.n:male.n)
-arxiv.long$day_of_week <- wday(arxiv.long$`as.Date(submitted)`, label=TRUE)
-arxiv.long$date <- as.numeric(arxiv.long$`as.Date(submitted)`)-18261
-arxiv.long$day_of_week <- factor(arxiv.long$day_of_week, ordered = FALSE)
-
-#Fit mdoel
-lm.physics <- lm(sqrt(n)~date*gender+day_of_week, data=arxiv.long)
-summary(lm.physics)
-Anova(lm.physics, type=3)
-
-#Check how many physics preprints are about COVID-19
-physics.df <- subset(df.all2020, field == cat)
-physics.df$COVID.in.abstract <- grepl('COVID-19|SARS-CoV-2|COVID|Covid|coronavirus', physics.df$abstract)
-
-#Math
-#Aggregate data by week for figure
-arxiv <- as.data.frame(ungroup(subset(df.all2020, as.Date(submitted) >= "2020-01-01" & as.Date(submitted) <= "2020-06-30" & field == "math") %>% group_by(round_date(as.Date(submitted), unit="weeks", week_start = getOption("lubridate.week.start", 1))) %>% summarize(female.n=sum(female.n, na.rm=TRUE), male.n=sum(male.n, na.rm=TRUE))))
-arxiv.long <- gather(arxiv, gender, n, female.n:male.n)
-colnames(arxiv.long) <- c("week", "gender", "n")
-arxiv.long$gender <- factor(arxiv.long$gender, rev(levels(as.factor(arxiv.long$gender))))
-
-p32 <- ggplot(data=subset(arxiv.long, as.Date(week) >= "2020-01-01" & as.Date(week) <= "2020-06-28"), aes(x=as.Date(week), y=n, color=gender, shape=gender))+geom_point(size=2)+geom_smooth(method="lm", se=FALSE)+ylab("Authorships (no.)")+xlab("Date")+theme_cowplot()+scale_color_manual(name="Gender", labels=c("Men", "Women"), values=colours2)+labs(title="arXiv", subtitle="math, all authorships")+scale_shape_discrete(name="Gender", labels=c("Men", "Women"))+geom_vline(aes(xintercept=as.Date(who)), linetype="dashed")+scale_x_date(date_labels = "%b %Y")+theme(axis.text.x=element_text(angle=60, hjust=1), legend.position="top")
-
-#Aggregate data by day for model
-arxiv <- as.data.frame(ungroup(subset(df.all2020, as.Date(submitted) >= "2020-01-01" & as.Date(submitted) <= "2020-06-30" & field == "math") %>% group_by(as.Date(submitted)) %>% summarize(female.n=sum(female.n, na.rm=TRUE), male.n=sum(male.n, na.rm=TRUE))))
-arxiv.long <- gather(arxiv, gender, n, female.n:male.n)
-arxiv.long$day_of_week <- wday(arxiv.long$`as.Date(submitted)`, label=TRUE)
-arxiv.long$date <- as.numeric(arxiv.long$`as.Date(submitted)`)-18261
-arxiv.long$day_of_week <- factor(arxiv.long$day_of_week, ordered = FALSE)
-
-#Fit mdoel
-lm.math <- lm(sqrt(n)~date*gender+day_of_week, data=arxiv.long)
-summary(lm.math)
-Anova(lm.math, type=3)
-
-#Computer science
-#Aggregate data by week for figure
-arxiv <- as.data.frame(ungroup(subset(df.all2020, as.Date(submitted) >= "2020-01-01" & as.Date(submitted) <= "2020-06-30" & field == "cs") %>% group_by(round_date(as.Date(submitted), unit="weeks", week_start = getOption("lubridate.week.start", 1))) %>% summarize(female.n=sum(female.n, na.rm=TRUE), male.n=sum(male.n, na.rm=TRUE))))
-arxiv.long <- gather(arxiv, gender, n, female.n:male.n)
-colnames(arxiv.long) <- c("week", "gender", "n")
-arxiv.long$gender <- factor(arxiv.long$gender, rev(levels(as.factor(arxiv.long$gender))))
-
-p33 <- ggplot(data=subset(arxiv.long, as.Date(week) >= "2020-01-01" & as.Date(week) <= "2020-06-28"), aes(x=as.Date(week), y=n, color=gender, shape=gender))+geom_point(size=2)+geom_smooth(method="lm", se=FALSE)+ylab("Authorships (no.)")+xlab("Date")+theme_cowplot()+scale_color_manual(name="Gender", labels=c("Men", "Women"), values=colours2)+labs(title="arXiv", subtitle="cs, all authorships")+scale_shape_discrete(name="Gender", labels=c("Men", "Women"))+geom_vline(aes(xintercept=as.Date(who)), linetype="dashed")+scale_x_date(date_labels = "%b %Y")+theme(axis.text.x=element_text(angle=60, hjust=1), legend.position="top")
-
-#Aggregate data by day for model
-arxiv <- as.data.frame(ungroup(subset(df.all2020, as.Date(submitted) >= "2020-01-01" & as.Date(submitted) <= "2020-06-30" & field == "cs") %>% group_by(as.Date(submitted)) %>% summarize(female.n=sum(female.n, na.rm=TRUE), male.n=sum(male.n, na.rm=TRUE))))
-arxiv.long <- gather(arxiv, gender, n, female.n:male.n)
-arxiv.long$day_of_week <- wday(arxiv.long$`as.Date(submitted)`, label=TRUE)
-arxiv.long$date <- as.numeric(arxiv.long$`as.Date(submitted)`)-18261
-arxiv.long$day_of_week <- factor(arxiv.long$day_of_week, ordered = FALSE)
-
-#Fit mdoel
-lm.cs <- lm(sqrt(n)~date*gender+day_of_week, data=arxiv.long)
-summary(lm.cs)
-Anova(lm.cs, type=3)
-
-p34 <- plot_grid(p31, p32, p33, nrow=1)
-p34
-save_plot("early2020_by_field.png", p34, base_height=4, base_width=10, dpi=600)
-
-#Economics and quantitative finance
-#Aggregate data by day for model
-arxiv <- as.data.frame(ungroup(subset(df.all2020, as.Date(submitted) >= "2020-01-01" & as.Date(submitted) <= "2020-06-30" & field == "econ") %>% group_by(as.Date(submitted)) %>% summarize(female.n=sum(female.n, na.rm=TRUE), male.n=sum(male.n, na.rm=TRUE))))
-arxiv.long <- gather(arxiv, gender, n, female.n:male.n)
-arxiv.long$day_of_week <- wday(arxiv.long$`as.Date(submitted)`, label=TRUE)
-arxiv.long$date <- as.numeric(arxiv.long$`as.Date(submitted)`)-18261
-arxiv.long$day_of_week <- factor(arxiv.long$day_of_week, ordered = FALSE)
-
-#Fit mdoel
-lm.econ <- lm(sqrt(n)~date*gender+day_of_week, data=arxiv.long)
-summary(lm.econ)
-Anova(lm.econ, type=3)
-
-#Quantitative biology
-#Aggregate data by day for model
-arxiv <- as.data.frame(ungroup(subset(df.all2020, as.Date(submitted) >= "2020-01-01" & as.Date(submitted) <= "2020-06-30" & field == "q-bio") %>% group_by(as.Date(submitted)) %>% summarize(female.n=sum(female.n, na.rm=TRUE), male.n=sum(male.n, na.rm=TRUE))))
-arxiv.long <- gather(arxiv, gender, n, female.n:male.n)
-arxiv.long$day_of_week <- wday(arxiv.long$`as.Date(submitted)`, label=TRUE)
-arxiv.long$date <- as.numeric(arxiv.long$`as.Date(submitted)`)-18261
-arxiv.long$day_of_week <- factor(arxiv.long$day_of_week, ordered = FALSE)
-
-#Fit mdoel
-lm.qbio <- lm(sqrt(n)~date*gender+day_of_week, data=arxiv.long)
-summary(lm.qbio)
-Anova(lm.qbio, type=3)
-#plot(lm1)
-
-#Statistics
-#Aggregate data by day for model
-arxiv <- as.data.frame(ungroup(subset(df.all2020, as.Date(submitted) >= "2020-01-01" & as.Date(submitted) <= "2020-06-30" & field == "stat") %>% group_by(as.Date(submitted)) %>% summarize(female.n=sum(female.n, na.rm=TRUE), male.n=sum(male.n, na.rm=TRUE))))
-arxiv.long <- gather(arxiv, gender, n, female.n:male.n)
-arxiv.long$day_of_week <- wday(arxiv.long$`as.Date(submitted)`, label=TRUE)
-arxiv.long$date <- as.numeric(arxiv.long$`as.Date(submitted)`)-18261
-arxiv.long$day_of_week <- factor(arxiv.long$day_of_week, ordered = FALSE)
-
-#Fit mdoel
-lm.stat <- lm(sqrt(n)~date*gender+day_of_week, data=arxiv.long)
-summary(lm.stat)
-Anova(lm.stat, type=3)
-
-#Engineering
-#Aggregate data by day for model
-arxiv <- as.data.frame(ungroup(subset(df.all2020, as.Date(submitted) >= "2020-01-01" & as.Date(submitted) <= "2020-06-30" & field == "eess") %>% group_by(as.Date(submitted)) %>% summarize(female.n=sum(female.n, na.rm=TRUE), male.n=sum(male.n, na.rm=TRUE))))
-arxiv.long <- gather(arxiv, gender, n, female.n:male.n)
-arxiv.long$day_of_week <- wday(arxiv.long$`as.Date(submitted)`, label=TRUE)
-arxiv.long$date <- as.numeric(arxiv.long$`as.Date(submitted)`)-18261
-arxiv.long$day_of_week <- factor(arxiv.long$day_of_week, ordered = FALSE)
-
-#Fit mdoel
-lm.eess <- lm(sqrt(n)~date*gender+day_of_week, data=arxiv.long)
-summary(lm.eess)
-Anova(lm.eess, type=3)
-```
-
-The gender gap in authorships is growing in physics, math, and computer science. 
-
-Furthermore, we checked how many physics preprints mention COVID-19, SARS-CoV-2, or coronavirus in the abstract, and found that only `r sum(physics.df$COVID.in.abstract)` out of `r length(physics.df$COVID.in.abstract)`, or `r round(100*(sum(physics.df$COVID.in.abstract)/length(physics.df$COVID.in.abstract)),1)`%, mention one of these terms. 
-
 ### Comparing single-authored arXiv preprint submissions in the months before and during the COVID-19 pandemic, by gender
 
 Again, what about for sole authorships? How does early 2020 compare to during the pandemic?
 
 ```{r Early 2020 arXiv sole author analysis, fig.height=4, fig.width=8, message=FALSE, warning=FALSE, dpi=300}
 
-arxiv.sole <- as.data.frame(ungroup(subset(df.all2020, as.Date(submitted) >= "2020-01-01" & as.Date(submitted) <= "2020-06-30" & author.n==1) %>% group_by(round_date(as.Date(submitted), unit="weeks", week_start = getOption("lubridate.week.start", 1))) %>% summarize(female.n=sum(female.n, na.rm=TRUE), male.n=sum(male.n, na.rm=TRUE))))
+arxiv.sole <- as.data.frame(ungroup(subset(df.all2020, as.Date(submitted) >= "2020-01-01" & as.Date(submitted) <= "2020-12-27" & author.n==1) %>% group_by(round_date(as.Date(submitted), unit="weeks", week_start = getOption("lubridate.week.start", 1))) %>% summarize(female.n=sum(female.n, na.rm=TRUE), male.n=sum(male.n, na.rm=TRUE))))
 arxiv.sole.long <- gather(arxiv.sole, gender, n, female.n:male.n)
 colnames(arxiv.sole.long) <- c("week", "gender", "n")
 arxiv.sole.long$gender <- factor(arxiv.sole.long$gender, rev(levels(as.factor(arxiv.sole.long$gender))))
 
-p7 <- ggplot(data=subset(arxiv.sole.long, as.Date(week) >= "2020-01-01" & as.Date(week) <= "2020-06-28"), aes(x=as.Date(week), y=n, color=gender, shape=gender))+geom_point(size=2)+geom_smooth(method="lm", se=FALSE)+ylab("Authorships (no.)")+xlab("Date")+theme_cowplot()+scale_color_manual(name="Gender", labels=c("Men", "Women"), values=colours2)+labs(title="arXiv", subtitle="sole authorships")+scale_shape_discrete(name="Gender", labels=c("Men", "Women"))+geom_vline(aes(xintercept=as.Date(who)), linetype="dashed")+scale_x_date(date_labels = "%b %Y")+theme(axis.text.x=element_text(angle=60, hjust=1), legend.position="top")
+p7 <- ggplot(data=subset(arxiv.sole.long, as.Date(week) >= "2020-01-01" & as.Date(week) <= "2020-12-27"), aes(x=as.Date(week), y=n, color=gender, shape=gender))+geom_point(size=2)+geom_smooth(method="lm", se=FALSE)+ylab("Authorships (no.)")+xlab("Date")+theme_cowplot()+scale_color_manual(name="Gender", labels=c("Men", "Women"), values=colours2)+labs(title="arXiv", subtitle="sole authorships")+scale_shape_discrete(name="Gender", labels=c("Men", "Women"))+geom_vline(aes(xintercept=as.Date(who)), linetype="dashed")+scale_x_date(date_labels = "%b %Y")+theme(axis.text.x=element_text(angle=60, hjust=1), legend.position="top")
 p7
 
 #Model
-arxiv.sole <- as.data.frame(ungroup(subset(df.all2020, as.Date(submitted) >= "2020-01-01" & as.Date(submitted) <= "2020-06-30" & author.n == 1) %>% group_by(as.Date(submitted)) %>% summarize(female.n=sum(female.n, na.rm=TRUE), male.n=sum(male.n, na.rm=TRUE)))) #Summarize by month
+arxiv.sole <- as.data.frame(ungroup(subset(df.all2020, as.Date(submitted) >= "2020-01-01" & as.Date(submitted) <= "2020-12-27" & author.n == 1) %>% group_by(as.Date(submitted)) %>% summarize(female.n=sum(female.n, na.rm=TRUE), male.n=sum(male.n, na.rm=TRUE)))) #Summarize by month
 arxiv.sole.long <- gather(arxiv.sole, gender, n, female.n:male.n)
 arxiv.sole.long$day_of_week <- wday(arxiv.sole.long$`as.Date(submitted)`, label=TRUE)
 arxiv.sole.long$date <- as.numeric(arxiv.sole.long$`as.Date(submitted)`)-18261
@@ -673,15 +389,15 @@ Let's do the same for first, middle, and last authorships on multi-authored prep
 
 ```{r Early 2020 arXiv first author analysis, fig.height=4, fig.width=8, message=FALSE, warning=FALSE, dpi=300}
 
-arxiv.first <- as.data.frame(ungroup(subset(df.all2020, as.Date(submitted) >= "2020-01-01" & as.Date(submitted) <= "2020-06-30" & !is.na(first.author.gender)) %>% group_by(round_date(as.Date(submitted), unit="weeks", week_start = getOption("lubridate.week.start", 1)), first.author.gender) %>% summarize(n=n())))
+arxiv.first <- as.data.frame(ungroup(subset(df.all2020, as.Date(submitted) >= "2020-01-01" & as.Date(submitted) <= "2020-12-27" & !is.na(first.author.gender)) %>% group_by(round_date(as.Date(submitted), unit="weeks", week_start = getOption("lubridate.week.start", 1)), first.author.gender) %>% summarize(n=n())))
 colnames(arxiv.first) <- c("week", "gender", "n")
 arxiv.first$gender <- factor(arxiv.first$gender, rev(levels(as.factor(arxiv.first$gender))))
 
-p8 <- ggplot(data=subset(arxiv.first, as.Date(week) >= "2020-01-01" & as.Date(week) <= "2020-06-28"), aes(x=as.Date(week), y=n, color=gender, shape=gender))+geom_point(size=2)+geom_smooth(method="lm", se=FALSE)+ylab("Authorships (no.)")+xlab("Date")+theme_cowplot()+scale_color_manual(name="Gender", labels=c("Men", "Women"), values=colours2)+scale_shape_discrete(name="Gender", labels=c("Men", "Women"))+geom_vline(aes(xintercept=as.Date("2020-03-11")), linetype="dashed")+labs(title="arXiv", subtitle="first authorships")+scale_x_date(date_labels = "%b %Y")+theme(axis.text.x=element_text(angle=60, hjust=1), legend.position="top")
+p8 <- ggplot(data=subset(arxiv.first, as.Date(week) >= "2020-01-01" & as.Date(week) <= "2020-12-27"), aes(x=as.Date(week), y=n, color=gender, shape=gender))+geom_point(size=2)+geom_smooth(method="lm", se=FALSE)+ylab("Authorships (no.)")+xlab("Date")+theme_cowplot()+scale_color_manual(name="Gender", labels=c("Men", "Women"), values=colours2)+scale_shape_discrete(name="Gender", labels=c("Men", "Women"))+geom_vline(aes(xintercept=as.Date("2020-03-11")), linetype="dashed")+labs(title="arXiv", subtitle="first authorships")+scale_x_date(date_labels = "%b %Y")+theme(axis.text.x=element_text(angle=60, hjust=1), legend.position="top")
 p8
 
 #Model
-arxiv.first <- as.data.frame(ungroup(subset(df.all2020, as.Date(submitted) >= "2020-01-01" & as.Date(submitted) <= "2020-06-30" & !is.na(first.author.gender)) %>% group_by(as.Date(submitted), first.author.gender) %>% summarize(n=n())))
+arxiv.first <- as.data.frame(ungroup(subset(df.all2020, as.Date(submitted) >= "2020-01-01" & as.Date(submitted) <= "2020-12-27" & !is.na(first.author.gender)) %>% group_by(as.Date(submitted), first.author.gender) %>% summarize(n=n())))
 arxiv.first$day_of_week <- wday(arxiv.first$`as.Date(submitted)`, label=TRUE)
 arxiv.first$date <- as.numeric(arxiv.first$`as.Date(submitted)`)-18261
 arxiv.first$day_of_week <- factor(arxiv.first$day_of_week, levels = c("Sun","Mon","Tue","Wed","Thu","Fri","Sat"), ordered = FALSE)
@@ -697,15 +413,15 @@ Men first authorships are growing faster than women first authorships.
 ##### Last authors
 
 ```{r Early 2020 arXiv last author analysis, fig.height=4, fig.width=8, message=FALSE, warning=FALSE, dpi=300}
-arxiv.last <- as.data.frame(ungroup(subset(df.all2020, as.Date(submitted) >= "2020-01-01" & as.Date(submitted) <= "2020-06-30" & !is.na(last.author.gender)) %>% group_by(round_date(as.Date(submitted), unit="weeks", week_start = getOption("lubridate.week.start", 1)), last.author.gender) %>% summarize(n=n())))
+arxiv.last <- as.data.frame(ungroup(subset(df.all2020, as.Date(submitted) >= "2020-01-01" & as.Date(submitted) <= "2020-12-27" & !is.na(last.author.gender)) %>% group_by(round_date(as.Date(submitted), unit="weeks", week_start = getOption("lubridate.week.start", 1)), last.author.gender) %>% summarize(n=n())))
 colnames(arxiv.last) <- c("week", "gender", "n")
 arxiv.last$gender <- factor(arxiv.last$gender, rev(levels(as.factor(arxiv.last$gender))))
 
-p9 <- ggplot(data=subset(arxiv.last, as.Date(week) >= "2020-01-01" & as.Date(week) <= "2020-06-28"), aes(x=as.Date(week), y=n, color=gender, shape=gender))+geom_point(size=2)+geom_smooth(method="lm", se=FALSE)+ylab("Authorships (no.)")+xlab("Date")+theme_cowplot()+scale_color_manual(name="Gender", labels=c("Men", "Women"), values=colours2)+scale_shape_discrete(name="Gender", labels=c("Men", "Women"))+geom_vline(aes(xintercept=as.Date("2020-03-11")), linetype="dashed")+labs(title="arXiv", subtitle="last authorships")+scale_x_date(date_labels = "%b %Y")+theme(axis.text.x=element_text(angle=60, hjust=1), legend.position="top")
+p9 <- ggplot(data=subset(arxiv.last, as.Date(week) >= "2020-01-01" & as.Date(week) <= "2020-12-27"), aes(x=as.Date(week), y=n, color=gender, shape=gender))+geom_point(size=2)+geom_smooth(method="lm", se=FALSE)+ylab("Authorships (no.)")+xlab("Date")+theme_cowplot()+scale_color_manual(name="Gender", labels=c("Men", "Women"), values=colours2)+scale_shape_discrete(name="Gender", labels=c("Men", "Women"))+geom_vline(aes(xintercept=as.Date("2020-03-11")), linetype="dashed")+labs(title="arXiv", subtitle="last authorships")+scale_x_date(date_labels = "%b %Y")+theme(axis.text.x=element_text(angle=60, hjust=1), legend.position="top")
 p9
 
 #Model
-arxiv.last <- as.data.frame(ungroup(subset(df.all2020, as.Date(submitted) >= "2020-01-01" & as.Date(submitted) <= "2020-06-30" & !is.na(last.author.gender)) %>% group_by(as.Date(submitted), last.author.gender) %>% summarize(n=n())))
+arxiv.last <- as.data.frame(ungroup(subset(df.all2020, as.Date(submitted) >= "2020-01-01" & as.Date(submitted) <= "2020-12-27" & !is.na(last.author.gender)) %>% group_by(as.Date(submitted), last.author.gender) %>% summarize(n=n())))
 arxiv.last$day_of_week <- wday(arxiv.last$`as.Date(submitted)`, label=TRUE)
 arxiv.last$date <- as.numeric(arxiv.last$`as.Date(submitted)`)-18261
 arxiv.last$day_of_week <- factor(arxiv.last$day_of_week, levels = c("Sun","Mon","Tue","Wed","Thu","Fri","Sat"), ordered = FALSE)
@@ -721,16 +437,16 @@ Men last authorships are growing faster than women last authorships.
 ### Middle authors
 
 ```{r Early 2020 arXiv middle author analysis, fig.height=4, fig.width=8, message=FALSE, warning=FALSE, dpi=300}
-arxiv.middle <- as.data.frame(ungroup(subset(df.all2020, as.Date(submitted) >= "2020-01-01" & as.Date(submitted) <= "2020-06-30") %>% group_by(round_date(as.Date(submitted), unit="weeks", week_start = getOption("lubridate.week.start", 1))) %>% summarize(female.n=sum(female.mid.authors.n, na.rm=TRUE), male.n=sum(male.mid.authors.n, na.rm=TRUE))))
+arxiv.middle <- as.data.frame(ungroup(subset(df.all2020, as.Date(submitted) >= "2020-01-01" & as.Date(submitted) <= "2020-12-27") %>% group_by(round_date(as.Date(submitted), unit="weeks", week_start = getOption("lubridate.week.start", 1))) %>% summarize(female.n=sum(female.mid.authors.n, na.rm=TRUE), male.n=sum(male.mid.authors.n, na.rm=TRUE))))
 arxiv.middle.long <- gather(arxiv.middle, gender, n, female.n:male.n)
 colnames(arxiv.middle.long) <- c("week", "gender", "n")
 arxiv.middle.long$gender <- factor(arxiv.middle.long$gender, rev(levels(as.factor(arxiv.middle.long$gender))))
 
-p10 <- ggplot(data=subset(arxiv.middle.long, as.Date(week) >= "2020-01-01" & as.Date(week) <= "2020-06-28"), aes(x=as.Date(week), y=n, color=gender, shape=gender))+geom_point(size=2)+geom_smooth(method="lm", se=FALSE)+ylab("Authorships (no.)")+xlab("Date")+theme_cowplot()+scale_color_manual(name="Gender", labels=c("Men", "Women"), values=colours2)+scale_shape_discrete(name="Gender", labels=c("Men", "Women"))+labs(title="arXiv", subtitle="middle authorships")+geom_vline(aes(xintercept=as.Date(who)), linetype="dashed")+scale_x_date(date_labels = "%b %Y")+theme(axis.text.x=element_text(angle=60, hjust=1), legend.position="top")
+p10 <- ggplot(data=subset(arxiv.middle.long, as.Date(week) >= "2020-01-01" & as.Date(week) <= "2020-12-27"), aes(x=as.Date(week), y=n, color=gender, shape=gender))+geom_point(size=2)+geom_smooth(method="lm", se=FALSE)+ylab("Authorships (no.)")+xlab("Date")+theme_cowplot()+scale_color_manual(name="Gender", labels=c("Men", "Women"), values=colours2)+scale_shape_discrete(name="Gender", labels=c("Men", "Women"))+labs(title="arXiv", subtitle="middle authorships")+geom_vline(aes(xintercept=as.Date(who)), linetype="dashed")+scale_x_date(date_labels = "%b %Y")+theme(axis.text.x=element_text(angle=60, hjust=1), legend.position="top")
 p10
 
 #Model
-arxiv.middle <- as.data.frame(ungroup(subset(df.all2020, as.Date(submitted) >= "2020-01-01" & as.Date(submitted) <= "2020-06-30") %>% group_by(as.Date(submitted)) %>% summarize(female.n=sum(female.mid.authors.n, na.rm=TRUE), male.n=sum(male.mid.authors.n, na.rm=TRUE))))
+arxiv.middle <- as.data.frame(ungroup(subset(df.all2020, as.Date(submitted) >= "2020-01-01" & as.Date(submitted) <= "2020-12-27") %>% group_by(as.Date(submitted)) %>% summarize(female.n=sum(female.mid.authors.n, na.rm=TRUE), male.n=sum(male.mid.authors.n, na.rm=TRUE))))
 arxiv.middle.long <- gather(arxiv.middle, gender, n, female.n:male.n)
 arxiv.middle.long$day_of_week <- wday(arxiv.middle.long$`as.Date(submitted)`, label=TRUE)
 arxiv.middle.long$day <- as.numeric(arxiv.middle.long$`as.Date(submitted)`)-18261
@@ -1024,36 +740,6 @@ all.biorxiv$first <- paste0(word(trimws(as.character(all.biorxiv$first.author)),
 all.biorxiv$cor_is_first <- ifelse(all.biorxiv$author.n > 1, ifelse(as.character(all.biorxiv$cor) == as.character(all.biorxiv$first), TRUE, FALSE), TRUE)
 all.biorxiv$cor_is_mid <- all.biorxiv$cor_is_last == FALSE & all.biorxiv$cor_is_first == FALSE
 per.cor.last <- length(which(all.biorxiv$cor_is_last))/(length(which(all.biorxiv$cor_is_last))+length(which(all.biorxiv$cor_is_first)))
-
-#Write a function to test whether author names are alphabetical order
-last.names.alpha.b <- function(x) {
-      tmp <- as.data.frame(strsplit(as.character(x), ";", fixed=TRUE))
-      colnames(tmp) <- c("names")
-      tmp$names <- trimws(tmp$names)
-      tmp$names <- word(tmp$names, 1)
-      tmp$names.alpha <- str_sort(tmp$names)
-      tmp$match <- identical(tmp$names, tmp$names.alpha)
-      ifelse(length(tmp$names) >= 2, ifelse(sum(tmp$match, na.rm=TRUE) > 0, "Y", "N"), NA)
-}
-
-#Apply alphabetical function
-all.biorxiv$authors.alpha <- lapply(all.biorxiv$authors, last.names.alpha.b) #Apply functions
-df.b.full$authors.alpha <- lapply(df.b.full$authors, last.names.alpha.b)
-df.b.all2020$authors.alpha <- lapply(df.b.all2020$authors, last.names.alpha.b)
-
-#Summarize 
-all.biorxiv$author.n.bin <- ifelse(all.biorxiv$author.n >= 8, 8, all.biorxiv$author.n)
-all.biorxiv.summary.long <- all.biorxiv %>% group_by(author.n.bin, authors.alpha) %>% summarize(n=n())
-all.biorxiv.summary.wide <- spread(all.biorxiv.summary.long, key=authors.alpha, value=n)
-all.biorxiv.summary.wide$expected.y <- round(ifelse(all.biorxiv.summary.wide$author.n.bin < 8, 100*(1/factorial(all.biorxiv.summary.wide$author.n.bin)), 100*(1/factorial(8))), 1) #Expect percent alphabetical (if random)
-all.biorxiv.summary.wide$per <- 100*(all.biorxiv.summary.wide$Y/(all.biorxiv.summary.wide$Y + all.biorxiv.summary.wide$N))
-  
-#Figure
-p35 <- ggplot(data=subset(all.biorxiv.summary.wide, author.n.bin > 1))+geom_bar(aes(x=author.n.bin, y=per), stat="identity", alpha=0.5)+geom_line(aes(x=author.n.bin, y=expected.y), colour="red")+geom_point(aes(x=author.n.bin, y=expected.y), colour="red", size=3)+theme_cowplot()+xlab("Authors on a preprint (no.)")+ylab("Authors in alphabetical order (%)")+scale_x_continuous(breaks=c(2:8), labels=c("2", "3", "4", "5", "6", "7", "8+"))+labs(title="bioRxiv", subtitle="all fields")
-
-p37 <- plot_grid(p36, p35, nrow=1, align='h')
-p37
-save_plot("alphabetical_order.png", p37, base_width=8, base_height=4, dpi=600)
 ```
 
 There are `r total.b.preprints` preprints in the full bioRxiv dataset, with a total of `r total.b.authors` authors. We inferred the gender of `r total.b.authors.with.gender` authors, or `r per.b.gender`%, with the rest omitted from subsequent analyses. 
@@ -1072,6 +758,7 @@ all.long <- gather(all, Gender, number, Female:Male) #Make wide data long
 all.t <- as.data.frame(t(all[,-1])) #Transpose
 colnames(all.t) <- c("2019", "2020") #Fix column names
 all.t$per.dif.1920 <- ((all.t$`2020`-all.t$`2019`)/(all.t$`2019`))*100 #Calculate percent change, 2020 over 2019
+
 
 #Make figure comparing 2020 to 2019
 p13 <- ggplot(data=all.long, aes(fill=as.factor(year), y=number, x=Gender))+geom_bar(position="dodge", stat="identity")+theme_cowplot()+xlab("Gender")+ylab("Authorships (no.)")+labs(fill="Year")+scale_fill_manual(values=colours1, labels=yr.labels)+theme(legend.position = "top", legend.justification="left", legend.title = element_blank(), legend.text = element_text(size=fontsize))+ggplot2::annotate("text", x=c(1, 2),  y=c(10500,16500), label = paste0("+", round(all.t$per.dif.1920[1:2], 1), "%"))+labs(title="bioRxiv", subtitle="all authorships")+guides(fill=guide_legend(nrow=2))+scale_x_discrete(labels=c("Women", "Men"))
@@ -1294,6 +981,7 @@ save_plot("early2020_biorxiv.png", p24, base_height=8, base_width=10, dpi=600)
 
 p24.v2 <- plot_grid(p18, p19, p20, p21, p22, align='v', axis='l', nrow=1)
 p24.v2
+
 ```
 
 ## Take-home message
