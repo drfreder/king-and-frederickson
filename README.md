@@ -2,13 +2,13 @@ The Pandemic Penalty: COVID-19’s Gendered Impact on Scientific
 Productivity
 ================
 Megan Frederickson and Molly King
-February 3, 2021
+February 6, 2021
 
 This repo contains the data and code for the analyses in:
 
 King MM, Frederickson ME. The Pandemic Penalty: COVID-19’s gendered
 impact on scientific productivity. Currently under review, preprint
-available on SocArXiv. The repo was updated on in early February, 2021
+available on SocArXiv. The repo was updated in early February, 2021
 after receiving reviewer comments.
 
 In the paper, we quantified how the COVID-19 pandemic is affecting the
@@ -50,7 +50,7 @@ expanded to scrape all the data for Jan 1, 2020 to June 30, 2020,
 inclusive. We scraped the data in batches, as recommended in the aRxiv
 package tutorial. For brevity, we are not reproducing the code here, but
 it is available in the [R markdown
-file](https://github.com/drfreder/king-and-frederickson/master/README.Rmd)
+file](https://github.com/drfreder/king-and-frederickson/blob/master/README.Rmd)
 included in this repo.
 
 Next, we assigned gender to author names using the gender package, see:
@@ -290,18 +290,14 @@ author.order.summary.wide$field <-factor(author.order.summary.wide$field, levels
 
 #Plot percent of preprints with authors in alphabetical order
 p26 <- ggplot(data=author.order.summary.wide, aes(x=field, y=per))+xlab("Field")+ylab("Authors in alphabetical order (%)")+geom_bar(stat="identity", alpha=0.5)+theme_cowplot()+theme(axis.text.x=element_text(angle=90))+labs(title="arXiv", subtitle="by field")
+p26
+```
+
+![](README_files/figure-gfm/Fields%20in%20alphabetical%20order-1.png)<!-- -->
+
+``` r
 p40 <- plot_grid(p25, p26, labels="auto")
 save_plot("Figure S1.png", p40, base_width = 8, base_height =4, dpi=600)
-
-#Summarize 
-all.arxiv$author.n.bin <- ifelse(all.arxiv$author.n >= 8, 8, all.arxiv$author.n)
-all.arxiv.summary.long <- all.arxiv %>% group_by(author.n.bin, authors.alpha) %>% summarize(n=n())
-all.arxiv.summary.wide <- spread(all.arxiv.summary.long, key=authors.alpha, value=n)
-all.arxiv.summary.wide$expected.y <- round(ifelse(all.arxiv.summary.wide$author.n.bin < 8, 100*(1/factorial(all.arxiv.summary.wide$author.n.bin)), 100*(1/factorial(8))), 1) #Expect percent alphabetical (if random)
-all.arxiv.summary.wide$per <- 100*(all.arxiv.summary.wide$Y/(all.arxiv.summary.wide$Y + all.arxiv.summary.wide$N))
-  
-#Figure
-p36 <- ggplot(data=subset(all.arxiv.summary.wide, author.n.bin > 1))+geom_bar(aes(x=author.n.bin, y=per), stat="identity", alpha=0.5)+geom_line(aes(x=author.n.bin, y=expected.y), colour="red")+geom_point(aes(x=author.n.bin, y=expected.y), colour="red", size=3)+theme_cowplot()+xlab("Authors on a preprint (no.)")+ylab("Authors in alphabetical order (%)")+scale_x_continuous(breaks=c(2:8), labels=c("2", "3", "4", "5", "6", "7", "8+"))+labs(title="arXiv", subtitle="all fields")
 ```
 
 Economics and quantitative finance (combined into “econ” in the figure)
@@ -340,7 +336,7 @@ April 2020 to the same dates in 2019, the number of men authorships has
 grown more than the number of women authorships, both as a percent
 change and in absolute terms.
 
-We further investigated this patterns in the fields with the greatest
+We further investigated this pattern in the fields with the greatest
 numbers of preprints in arXiv, namely physics, computer science, and
 math.
 
@@ -399,7 +395,9 @@ save_plot("all_authorships_by_field.png", p30, base_height=4, base_width=8, dpi=
 ```
 
 There has been a greater decline in women authorships than men
-authorships in physics and math, but not in computer science.
+authorships in physics and math, but not in computer science. In
+computer science, women added more authorships as a percent change, but
+not in absolute terms, between Mar/Apr 2019 and Mar/Apr 2020.
 
 ### Comparing single-authored arXiv preprints between Mar/Apr 2019 and Mar/Apr 2020, by gender
 
@@ -443,7 +441,8 @@ p3
 ![](README_files/figure-gfm/arXiv%20year-over-year%20first%20authors-1.png)<!-- -->
 
 The number of women first authorships has grown slightly faster than the
-number of men first authorships, as a percent change year-over-year.
+number of men first authorships, as a percent change year-over-year (but
+not in absolute terms).
 
 ##### Last authorships
 
@@ -579,7 +578,21 @@ The number of male authorships is growing faster than the number of
 female authorships during the pandemic.
 
 Again, we repeated the analysis for physics, math, and computer science
-separately.
+separately. But first, let’s check how many physics preprints are about
+COVID-19 in the full arXiv dataset.
+
+``` r
+#Check how many physics preprints are about COVID-19
+physics.df <- subset(all.arxiv, field == "physics")
+physics.df$COVID.in.abstract <- grepl('COVID-19|SARS-CoV-2|COVID|Covid|coronavirus', physics.df$abstract)
+```
+
+We calculated how many physics preprints mention COVID-19, SARS-CoV-2,
+or coronavirus in the abstract, and found that only 276 out of 45058, or
+0.6%, mention one of these terms.
+
+Now for the linear model results for each of the 3 big fields in the
+arXiv dataset.
 
 ``` r
 #Bin all physics sub-disciplines into "physics"
@@ -659,10 +672,6 @@ Anova(lm.physics, type=3)
     ## Signif. codes:  0 '***' 0.001 '**' 0.01 '*' 0.05 '.' 0.1 ' ' 1
 
 ``` r
-#Check how many physics preprints are about COVID-19
-physics.df <- subset(df.all2020, field == cat)
-physics.df$COVID.in.abstract <- grepl('COVID-19|SARS-CoV-2|COVID|Covid|coronavirus', physics.df$abstract)
-
 #Math
 #Aggregate data by week for figure
 arxiv <- as.data.frame(ungroup(subset(df.all2020, as.Date(submitted) >= "2020-01-01" & as.Date(submitted) <= "2020-06-30" & field == "math") %>% group_by(round_date(as.Date(submitted), unit="weeks", week_start = getOption("lubridate.week.start", 1))) %>% summarize(female.n=sum(female.n, na.rm=TRUE), male.n=sum(male.n, na.rm=TRUE))))
@@ -806,243 +815,60 @@ save_plot("early2020_by_field.png", p34, base_height=4, base_width=10, dpi=600)
 
 #Economics and quantitative finance
 #Aggregate data by day for model
-arxiv <- as.data.frame(ungroup(subset(df.all2020, as.Date(submitted) >= "2020-01-01" & as.Date(submitted) <= "2020-06-30" & field == "econ") %>% group_by(as.Date(submitted)) %>% summarize(female.n=sum(female.n, na.rm=TRUE), male.n=sum(male.n, na.rm=TRUE))))
-arxiv.long <- gather(arxiv, gender, n, female.n:male.n)
-arxiv.long$day_of_week <- wday(arxiv.long$`as.Date(submitted)`, label=TRUE)
-arxiv.long$date <- as.numeric(arxiv.long$`as.Date(submitted)`)-18261
-arxiv.long$day_of_week <- factor(arxiv.long$day_of_week, ordered = FALSE)
+#arxiv <- as.data.frame(ungroup(subset(df.all2020, as.Date(submitted) >= "2020-01-01" & as.Date(submitted) <= "2020-06-30" & field == "econ") %>% group_by(as.Date(submitted)) %>% summarize(female.n=sum(female.n, na.rm=TRUE), male.n=sum(male.n, na.rm=TRUE))))
+#arxiv.long <- gather(arxiv, gender, n, female.n:male.n)
+#arxiv.long$day_of_week <- wday(arxiv.long$`as.Date(submitted)`, label=TRUE)
+#arxiv.long$date <- as.numeric(arxiv.long$`as.Date(submitted)`)-18261
+#arxiv.long$day_of_week <- factor(arxiv.long$day_of_week, ordered = FALSE)
 
 #Fit mdoel
-lm.econ <- lm(sqrt(n)~date*gender+day_of_week, data=arxiv.long)
-summary(lm.econ)
-```
+#lm.econ <- lm(sqrt(n)~date*gender+day_of_week, data=arxiv.long)
+#summary(lm.econ)
+#Anova(lm.econ, type=3)
 
-    ## 
-    ## Call:
-    ## lm(formula = sqrt(n) ~ date * gender + day_of_week, data = arxiv.long)
-    ## 
-    ## Residuals:
-    ##      Min       1Q   Median       3Q      Max 
-    ## -2.07993 -0.48070 -0.06858  0.56137  2.77328 
-    ## 
-    ## Coefficients:
-    ##                     Estimate Std. Error t value Pr(>|t|)    
-    ## (Intercept)        0.4235531  0.1580761   2.679  0.00773 ** 
-    ## date               0.0006029  0.0011296   0.534  0.59390    
-    ## gendermale.n       1.1362035  0.1699772   6.684 9.51e-11 ***
-    ## day_of_weekMon     0.8853083  0.1558801   5.679 2.90e-08 ***
-    ## day_of_weekTue     0.7160151  0.1558975   4.593 6.17e-06 ***
-    ## day_of_weekWed     0.6406341  0.1558717   4.110 4.96e-05 ***
-    ## day_of_weekThu     0.7343741  0.1543969   4.756 2.92e-06 ***
-    ## day_of_weekFri     0.5668272  0.1543814   3.672  0.00028 ***
-    ## day_of_weekSat    -0.0837290  0.1592487  -0.526  0.59939    
-    ## date:gendermale.n  0.0052417  0.0015961   3.284  0.00113 ** 
-    ## ---
-    ## Signif. codes:  0 '***' 0.001 '**' 0.01 '*' 0.05 '.' 0.1 ' ' 1
-    ## 
-    ## Residual standard error: 0.7793 on 340 degrees of freedom
-    ## Multiple R-squared:  0.5838, Adjusted R-squared:  0.5728 
-    ## F-statistic:    53 on 9 and 340 DF,  p-value: < 2.2e-16
-
-``` r
-Anova(lm.econ, type=3)
-```
-
-    ## Anova Table (Type III tests)
-    ## 
-    ## Response: sqrt(n)
-    ##              Sum Sq  Df F value    Pr(>F)    
-    ## (Intercept)   4.360   1  7.1793  0.007734 ** 
-    ## date          0.173   1  0.2848  0.593896    
-    ## gender       27.138   1 44.6818 9.513e-11 ***
-    ## day_of_week  41.989   6 11.5225 9.600e-12 ***
-    ## date:gender   6.550   1 10.7847  0.001130 ** 
-    ## Residuals   206.499 340                      
-    ## ---
-    ## Signif. codes:  0 '***' 0.001 '**' 0.01 '*' 0.05 '.' 0.1 ' ' 1
-
-``` r
 #Quantitative biology
 #Aggregate data by day for model
-arxiv <- as.data.frame(ungroup(subset(df.all2020, as.Date(submitted) >= "2020-01-01" & as.Date(submitted) <= "2020-06-30" & field == "q-bio") %>% group_by(as.Date(submitted)) %>% summarize(female.n=sum(female.n, na.rm=TRUE), male.n=sum(male.n, na.rm=TRUE))))
-arxiv.long <- gather(arxiv, gender, n, female.n:male.n)
-arxiv.long$day_of_week <- wday(arxiv.long$`as.Date(submitted)`, label=TRUE)
-arxiv.long$date <- as.numeric(arxiv.long$`as.Date(submitted)`)-18261
-arxiv.long$day_of_week <- factor(arxiv.long$day_of_week, ordered = FALSE)
+#arxiv <- as.data.frame(ungroup(subset(df.all2020, as.Date(submitted) >= "2020-01-01" & as.Date(submitted) <= "2020-06-30" & field == "q-bio") %>% group_by(as.Date(submitted)) %>% summarize(female.n=sum(female.n, na.rm=TRUE), male.n=sum(male.n, na.rm=TRUE))))
+#arxiv.long <- gather(arxiv, gender, n, female.n:male.n)
+#arxiv.long$day_of_week <- wday(arxiv.long$`as.Date(submitted)`, label=TRUE)
+#arxiv.long$date <- as.numeric(arxiv.long$`as.Date(submitted)`)-18261
+#arxiv.long$day_of_week <- factor(arxiv.long$day_of_week, ordered = FALSE)
 
 #Fit mdoel
-lm.qbio <- lm(sqrt(n)~date*gender+day_of_week, data=arxiv.long)
-summary(lm.qbio)
-```
-
-    ## 
-    ## Call:
-    ## lm(formula = sqrt(n) ~ date * gender + day_of_week, data = arxiv.long)
-    ## 
-    ## Residuals:
-    ##     Min      1Q  Median      3Q     Max 
-    ## -3.0636 -0.6422 -0.1050  0.6460  4.7472 
-    ## 
-    ## Coefficients:
-    ##                    Estimate Std. Error t value Pr(>|t|)    
-    ## (Intercept)        1.491880   0.215393   6.926 2.06e-11 ***
-    ## date               0.005971   0.001545   3.865 0.000132 ***
-    ## gendermale.n       1.248961   0.231016   5.406 1.19e-07 ***
-    ## day_of_weekMon     0.668659   0.213697   3.129 0.001900 ** 
-    ## day_of_weekTue     0.802327   0.213706   3.754 0.000203 ***
-    ## day_of_weekWed     0.644261   0.213739   3.014 0.002763 ** 
-    ## day_of_weekThu     0.806150   0.213720   3.772 0.000190 ***
-    ## day_of_weekFri     0.535016   0.213706   2.504 0.012749 *  
-    ## day_of_weekSat    -0.646979   0.215829  -2.998 0.002914 ** 
-    ## date:gendermale.n  0.003679   0.002184   1.685 0.092958 .  
-    ## ---
-    ## Signif. codes:  0 '***' 0.001 '**' 0.01 '*' 0.05 '.' 0.1 ' ' 1
-    ## 
-    ## Residual standard error: 1.09 on 352 degrees of freedom
-    ## Multiple R-squared:  0.4746, Adjusted R-squared:  0.4611 
-    ## F-statistic: 35.33 on 9 and 352 DF,  p-value: < 2.2e-16
-
-``` r
-Anova(lm.qbio, type=3)
-```
-
-    ## Anova Table (Type III tests)
-    ## 
-    ## Response: sqrt(n)
-    ##             Sum Sq  Df F value    Pr(>F)    
-    ## (Intercept)  56.96   1 47.9739 2.062e-11 ***
-    ## date         17.74   1 14.9401 0.0001321 ***
-    ## gender       34.70   1 29.2290 1.189e-07 ***
-    ## day_of_week  87.88   6 12.3366 1.295e-12 ***
-    ## date:gender   3.37   1  2.8378 0.0929583 .  
-    ## Residuals   417.93 352                      
-    ## ---
-    ## Signif. codes:  0 '***' 0.001 '**' 0.01 '*' 0.05 '.' 0.1 ' ' 1
-
-``` r
+#lm.qbio <- lm(sqrt(n)~date*gender+day_of_week, data=arxiv.long)
+#summary(lm.qbio)
+#Anova(lm.qbio, type=3)
 #plot(lm1)
 
 #Statistics
 #Aggregate data by day for model
-arxiv <- as.data.frame(ungroup(subset(df.all2020, as.Date(submitted) >= "2020-01-01" & as.Date(submitted) <= "2020-06-30" & field == "stat") %>% group_by(as.Date(submitted)) %>% summarize(female.n=sum(female.n, na.rm=TRUE), male.n=sum(male.n, na.rm=TRUE))))
-arxiv.long <- gather(arxiv, gender, n, female.n:male.n)
-arxiv.long$day_of_week <- wday(arxiv.long$`as.Date(submitted)`, label=TRUE)
-arxiv.long$date <- as.numeric(arxiv.long$`as.Date(submitted)`)-18261
-arxiv.long$day_of_week <- factor(arxiv.long$day_of_week, ordered = FALSE)
+#arxiv <- as.data.frame(ungroup(subset(df.all2020, as.Date(submitted) >= "2020-01-01" & as.Date(submitted) <= "2020-06-30" & field == "stat") %>% group_by(as.Date(submitted)) %>% summarize(female.n=sum(female.n, na.rm=TRUE), male.n=sum(male.n, na.rm=TRUE))))
+#arxiv.long <- gather(arxiv, gender, n, female.n:male.n)
+#arxiv.long$day_of_week <- wday(arxiv.long$`as.Date(submitted)`, label=TRUE)
+#arxiv.long$date <- as.numeric(arxiv.long$`as.Date(submitted)`)-18261
+#arxiv.long$day_of_week <- factor(arxiv.long$day_of_week, ordered = FALSE)
 
 #Fit mdoel
-lm.stat <- lm(sqrt(n)~date*gender+day_of_week, data=arxiv.long)
-summary(lm.stat)
-```
+#lm.stat <- lm(sqrt(n)~date*gender+day_of_week, data=arxiv.long)
+#summary(lm.stat)
+#Anova(lm.stat, type=3)
 
-    ## 
-    ## Call:
-    ## lm(formula = sqrt(n) ~ date * gender + day_of_week, data = arxiv.long)
-    ## 
-    ## Residuals:
-    ##     Min      1Q  Median      3Q     Max 
-    ## -2.8582 -0.6500  0.0283  0.5545  3.7909 
-    ## 
-    ## Coefficients:
-    ##                   Estimate Std. Error t value Pr(>|t|)    
-    ## (Intercept)       0.682895   0.194716   3.507 0.000512 ***
-    ## date              0.006009   0.001399   4.296 2.26e-05 ***
-    ## gendermale.n      2.044994   0.209274   9.772  < 2e-16 ***
-    ## day_of_weekMon    1.786126   0.192818   9.263  < 2e-16 ***
-    ## day_of_weekTue    1.806814   0.192825   9.370  < 2e-16 ***
-    ## day_of_weekWed    1.667437   0.194734   8.563 3.48e-16 ***
-    ## day_of_weekThu    1.713119   0.192838   8.884  < 2e-16 ***
-    ## day_of_weekFri    1.588541   0.192825   8.238 3.48e-15 ***
-    ## day_of_weekSat    0.243569   0.192818   1.263 0.207351    
-    ## date:gendermale.n 0.002652   0.001978   1.341 0.180910    
-    ## ---
-    ## Signif. codes:  0 '***' 0.001 '**' 0.01 '*' 0.05 '.' 0.1 ' ' 1
-    ## 
-    ## Residual standard error: 0.9832 on 352 degrees of freedom
-    ## Multiple R-squared:  0.6791, Adjusted R-squared:  0.6709 
-    ## F-statistic: 82.78 on 9 and 352 DF,  p-value: < 2.2e-16
-
-``` r
-Anova(lm.stat, type=3)
-```
-
-    ## Anova Table (Type III tests)
-    ## 
-    ## Response: sqrt(n)
-    ##             Sum Sq  Df F value    Pr(>F)    
-    ## (Intercept)  11.89   1 12.3000 0.0005116 ***
-    ## date         17.84   1 18.4514 2.258e-05 ***
-    ## gender       92.30   1 95.4893 < 2.2e-16 ***
-    ## day_of_week 190.80   6 32.8987 < 2.2e-16 ***
-    ## date:gender   1.74   1  1.7972 0.1809100    
-    ## Residuals   340.25 352                      
-    ## ---
-    ## Signif. codes:  0 '***' 0.001 '**' 0.01 '*' 0.05 '.' 0.1 ' ' 1
-
-``` r
 #Engineering
 #Aggregate data by day for model
-arxiv <- as.data.frame(ungroup(subset(df.all2020, as.Date(submitted) >= "2020-01-01" & as.Date(submitted) <= "2020-06-30" & field == "eess") %>% group_by(as.Date(submitted)) %>% summarize(female.n=sum(female.n, na.rm=TRUE), male.n=sum(male.n, na.rm=TRUE))))
-arxiv.long <- gather(arxiv, gender, n, female.n:male.n)
-arxiv.long$day_of_week <- wday(arxiv.long$`as.Date(submitted)`, label=TRUE)
-arxiv.long$date <- as.numeric(arxiv.long$`as.Date(submitted)`)-18261
-arxiv.long$day_of_week <- factor(arxiv.long$day_of_week, ordered = FALSE)
+#arxiv <- as.data.frame(ungroup(subset(df.all2020, as.Date(submitted) >= "2020-01-01" & as.Date(submitted) <= "2020-06-30" & field == "eess") %>% group_by(as.Date(submitted)) %>% summarize(female.n=sum(female.n, na.rm=TRUE), male.n=sum(male.n, na.rm=TRUE))))
+#arxiv.long <- gather(arxiv, gender, n, female.n:male.n)
+#arxiv.long$day_of_week <- wday(arxiv.long$`as.Date(submitted)`, label=TRUE)
+#arxiv.long$date <- as.numeric(arxiv.long$`as.Date(submitted)`)-18261
+#arxiv.long$day_of_week <- factor(arxiv.long$day_of_week, ordered = FALSE)
 
 #Fit mdoel
-lm.eess <- lm(sqrt(n)~date*gender+day_of_week, data=arxiv.long)
-summary(lm.eess)
+#lm.eess <- lm(sqrt(n)~date*gender+day_of_week, data=arxiv.long)
+#summary(lm.eess)
+#Anova(lm.eess, type=3)
 ```
-
-    ## 
-    ## Call:
-    ## lm(formula = sqrt(n) ~ date * gender + day_of_week, data = arxiv.long)
-    ## 
-    ## Residuals:
-    ##     Min      1Q  Median      3Q     Max 
-    ## -2.6591 -0.5462 -0.1077  0.5799  3.1200 
-    ## 
-    ## Coefficients:
-    ##                    Estimate Std. Error t value Pr(>|t|)    
-    ## (Intercept)        1.666986   0.187125   8.908  < 2e-16 ***
-    ## date               0.005604   0.001340   4.182 3.65e-05 ***
-    ## gendermale.n       3.187212   0.199894  15.945  < 2e-16 ***
-    ## day_of_weekMon     2.079107   0.186216  11.165  < 2e-16 ***
-    ## day_of_weekTue     2.049864   0.186223  11.008  < 2e-16 ***
-    ## day_of_weekWed     1.497621   0.186252   8.041 1.35e-14 ***
-    ## day_of_weekThu     1.803844   0.186235   9.686  < 2e-16 ***
-    ## day_of_weekFri     1.270906   0.186223   6.825 3.84e-11 ***
-    ## day_of_weekSat    -0.055635   0.186216  -0.299   0.7653    
-    ## date:gendermale.n  0.004432   0.001895   2.340   0.0199 *  
-    ## ---
-    ## Signif. codes:  0 '***' 0.001 '**' 0.01 '*' 0.05 '.' 0.1 ' ' 1
-    ## 
-    ## Residual standard error: 0.9495 on 354 degrees of freedom
-    ## Multiple R-squared:  0.8245, Adjusted R-squared:  0.8201 
-    ## F-statistic: 184.8 on 9 and 354 DF,  p-value: < 2.2e-16
-
-``` r
-Anova(lm.eess, type=3)
-```
-
-    ## Anova Table (Type III tests)
-    ## 
-    ## Response: sqrt(n)
-    ##             Sum Sq  Df  F value    Pr(>F)    
-    ## (Intercept)  71.55   1  79.3595 < 2.2e-16 ***
-    ## date         15.76   1  17.4855 3.653e-05 ***
-    ## gender      229.20   1 254.2286 < 2.2e-16 ***
-    ## day_of_week 257.99   6  47.6926 < 2.2e-16 ***
-    ## date:gender   4.93   1   5.4735   0.01986 *  
-    ## Residuals   319.15 354                       
-    ## ---
-    ## Signif. codes:  0 '***' 0.001 '**' 0.01 '*' 0.05 '.' 0.1 ' ' 1
 
 The gender gap in authorships is growing in physics, math, and computer
 science.
-
-Furthermore, we checked how many physics preprints mention COVID-19,
-SARS-CoV-2, or coronavirus in the abstract, and found that only 414 out
-of 25102, or 1.6%, mention one of these terms.
 
 ### Comparing single-authored arXiv preprint submissions in the months before and during the COVID-19 pandemic, by gender
 
@@ -1368,32 +1194,22 @@ p11
 ``` r
 save_plot("year-over-year_arxiv.png", p11, base_height=8, base_width=8, dpi=600)
 
-p11.v2 <- plot_grid(p1, p2, p3, p4, p5, align = 'v', axis='l', nrow=1)
-p11.v2
-```
-
-![](README_files/figure-gfm/Combine%20visualizations%20for%20omnibus%20figures-2.png)<!-- -->
-
-``` r
-save_plot("year-over-year_arxiv.v2.png", p11.v2, base_height=4, base_width=13.5, dpi=600)
+#p11.v2 <- plot_grid(p1, p2, p3, p4, p5, align = 'v', axis='l', nrow=1)
+#p11.v2
+#save_plot("year-over-year_arxiv.v2.png", p11.v2, base_height=4, base_width=13.5, dpi=600)
 
 p12 <- plot_grid(p6, p7, p8, p9, p10, align='v', axis='l')
 p12
 ```
 
-![](README_files/figure-gfm/Combine%20visualizations%20for%20omnibus%20figures-3.png)<!-- -->
+![](README_files/figure-gfm/Combine%20visualizations%20for%20omnibus%20figures-2.png)<!-- -->
 
 ``` r
 save_plot("early2020_arxiv.png", p12, base_height=8, base_width=10, dpi=600)
 
-p12.v2 <- plot_grid(p6, p7, p8, p9, p10, align='v', axis='l', nrow=1)
-p12.v2
-```
-
-![](README_files/figure-gfm/Combine%20visualizations%20for%20omnibus%20figures-4.png)<!-- -->
-
-``` r
-save_plot("early2020_arxiv.v2.png", p12.v2, base_height=4.5, base_width=16, dpi=600)
+#p12.v2 <- plot_grid(p6, p7, p8, p9, p10, align='v', axis='l', nrow=1)
+#p12.v2
+#save_plot("early2020_arxiv.v2.png", p12.v2, base_height=4.5, base_width=16, dpi=600)
 ```
 
 ## bioRxiv submissions
@@ -1659,7 +1475,27 @@ all.biorxiv$first <- paste0(word(trimws(as.character(all.biorxiv$first.author)),
 all.biorxiv$cor_is_first <- ifelse(all.biorxiv$author.n > 1, ifelse(as.character(all.biorxiv$cor) == as.character(all.biorxiv$first), TRUE, FALSE), TRUE)
 all.biorxiv$cor_is_mid <- all.biorxiv$cor_is_last == FALSE & all.biorxiv$cor_is_first == FALSE
 per.cor.last <- length(which(all.biorxiv$cor_is_last))/(length(which(all.biorxiv$cor_is_last))+length(which(all.biorxiv$cor_is_first)))
+```
 
+There are 34492 preprints in the full bioRxiv dataset, with a total of
+258715 authors. We inferred the gender of 195204 authors, or 75.5%, with
+the rest omitted from subsequent analyses.
+
+For just the comparison of March 15-April 15, 2020 with the same dates
+in 2019, there are 7818 bioRxiv preprints with 43125 authors for whom we
+inferred gender.
+
+For the sake of interest, 70% of bioRxiv corresponding authors are last
+authors.
+
+For both bioRxiv and arXiv (above) we want to understand how many
+preprints list authors in alphabetical order, and whether it is more
+than expected by chance alone. We calculated the probably that a
+preprint will have authors in alphabetical order by chance alone as
+1/n\!, where n is the number of authors on the preprint.
+
+``` r
+#bioRxiv alphabetical order analysis
 #Write a function to test whether author names are alphabetical order
 last.names.alpha.b <- function(x) {
       tmp <- as.data.frame(strsplit(as.character(x), ";", fixed=TRUE))
@@ -1686,26 +1522,30 @@ all.biorxiv.summary.wide$per <- 100*(all.biorxiv.summary.wide$Y/(all.biorxiv.sum
 #Figure
 p35 <- ggplot(data=subset(all.biorxiv.summary.wide, author.n.bin > 1))+geom_bar(aes(x=author.n.bin, y=per), stat="identity", alpha=0.5)+geom_line(aes(x=author.n.bin, y=expected.y), colour="red")+geom_point(aes(x=author.n.bin, y=expected.y), colour="red", size=3)+theme_cowplot()+xlab("Authors on a preprint (no.)")+ylab("Authors in alphabetical order (%)")+scale_x_continuous(breaks=c(2:8), labels=c("2", "3", "4", "5", "6", "7", "8+"))+labs(title="bioRxiv", subtitle="all fields")
 
+#arXiv alphabetical order analysis
+#Summarize 
+all.arxiv$author.n.bin <- ifelse(all.arxiv$author.n >= 8, 8, all.arxiv$author.n)
+all.arxiv.summary.long <- all.arxiv %>% group_by(author.n.bin, authors.alpha) %>% summarize(n=n())
+all.arxiv.summary.wide <- spread(all.arxiv.summary.long, key=authors.alpha, value=n)
+all.arxiv.summary.wide$expected.y <- round(ifelse(all.arxiv.summary.wide$author.n.bin < 8, 100*(1/factorial(all.arxiv.summary.wide$author.n.bin)), 100*(1/factorial(8))), 1) #Expect percent alphabetical (if random)
+all.arxiv.summary.wide$per <- 100*(all.arxiv.summary.wide$Y/(all.arxiv.summary.wide$Y + all.arxiv.summary.wide$N))
+  
+#Figure
+p36 <- ggplot(data=subset(all.arxiv.summary.wide, author.n.bin > 1))+geom_bar(aes(x=author.n.bin, y=per), stat="identity", alpha=0.5)+geom_line(aes(x=author.n.bin, y=expected.y), colour="red")+geom_point(aes(x=author.n.bin, y=expected.y), colour="red", size=3)+theme_cowplot()+xlab("Authors on a preprint (no.)")+ylab("Authors in alphabetical order (%)")+scale_x_continuous(breaks=c(2:8), labels=c("2", "3", "4", "5", "6", "7", "8+"))+labs(title="arXiv", subtitle="all fields")
+
 p37 <- plot_grid(p36, p35, nrow=1, align='h')
 p37
 ```
 
-![](README_files/figure-gfm/Summary%20statistics%20for%20biorxiv-1.png)<!-- -->
+![](README_files/figure-gfm/bioRxiv%20and%20arXiv%20alphabetical%20order-1.png)<!-- -->
 
 ``` r
 save_plot("alphabetical_order.png", p37, base_width=8, base_height=4, dpi=600)
 ```
 
-There are 34492 preprints in the full bioRxiv dataset, with a total of
-258715 authors. We inferred the gender of 195204 authors, or 75.5%, with
-the rest omitted from subsequent analyses.
-
-For just the comparison of March 15-April 15, 2020 with the same dates
-in 2019, there are 7818 bioRxiv preprints with 43125 authors for whom we
-inferred gender.
-
-For the sake of interest, 70% of bioRxiv corresponding authors are last
-authors.
+The observed and expected percent of preprints with authors in
+alphabetical order are nearly identical in bioRxiv, but arXiv has an
+excess of preprints in alphabetical order.
 
 ### Comparing bioRxiv preprint authorships between Mar/Apr 2019 and Mar/Apr 2020, by gender
 
@@ -2219,29 +2059,22 @@ p23
 ``` r
 save_plot("year-over-year_biorxiv.png", p23, base_height=8, base_width=8, dpi=600)
 
-p23.v2 <- plot_grid(p13,p14,p15,p16,p17, align = 'v', axis='l', nrow=1)
-p23.v2
-```
-
-![](README_files/figure-gfm/Combine%20biorxiv%20visualizations%20for%20omnibus%20figures-2.png)<!-- -->
-
-``` r
-save_plot("year-over-year_biorxiv.v2.png", p23.v2, base_height=4, base_width=13.5, dpi=600)
+#p23.v2 <- plot_grid(p13,p14,p15,p16,p17, align = 'v', axis='l', nrow=1)
+#p23.v2
+#save_plot("year-over-year_biorxiv.v2.png", p23.v2, base_height=4, base_width=13.5, dpi=600)
 
 p24 <- plot_grid(p18, p19, p20, p21, p22, align='v', axis='l')
 p24
 ```
 
-![](README_files/figure-gfm/Combine%20biorxiv%20visualizations%20for%20omnibus%20figures-3.png)<!-- -->
+![](README_files/figure-gfm/Combine%20biorxiv%20visualizations%20for%20omnibus%20figures-2.png)<!-- -->
 
 ``` r
 save_plot("early2020_biorxiv.png", p24, base_height=8, base_width=10, dpi=600)
 
-p24.v2 <- plot_grid(p18, p19, p20, p21, p22, align='v', axis='l', nrow=1)
-p24.v2
+#p24.v2 <- plot_grid(p18, p19, p20, p21, p22, align='v', axis='l', nrow=1)
+#p24.v2
 ```
-
-![](README_files/figure-gfm/Combine%20biorxiv%20visualizations%20for%20omnibus%20figures-4.png)<!-- -->
 
 ## Take-home message
 
