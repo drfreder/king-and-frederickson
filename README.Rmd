@@ -494,7 +494,7 @@ physics.df$COVID.in.abstract <- grepl('COVID-19|SARS-CoV-2|COVID|Covid|coronavir
 
 We calculated how many physics preprints mention COVID-19, SARS-CoV-2, or coronavirus in the abstract, and found that only `r sum(physics.df$COVID.in.abstract)` out of `r length(physics.df$COVID.in.abstract)`, or `r round(100*(sum(physics.df$COVID.in.abstract)/length(physics.df$COVID.in.abstract)),1)`%, mention one of these terms. 
 
-Now for the linear model results for each of the 3 big fields in the arXiv dataset. 
+Now for the linear model results for each of the 3 big fields in the arXiv dataset (physics, math, and computer science). For sake of completion, we also did the other 4 fields (economics and quantitative finance, electrical engineering and systems science, statistics, and quantitative biology). 
 
 ```{r Early 2020 arXiv all authors analysis by field, fig.height=4, fig.width=8, message=FALSE, warning=FALSE, dpi=300}
 #Bin all physics sub-disciplines into "physics"
@@ -577,56 +577,55 @@ save_plot("early2020_by_field.png", p34, base_height=4, base_width=10, dpi=600)
 
 #Economics and quantitative finance
 #Aggregate data by day for model
-#arxiv <- as.data.frame(ungroup(subset(df.all2020, as.Date(submitted) >= "2020-01-01" & as.Date(submitted) <= "2020-06-30" & field == "econ") %>% group_by(as.Date(submitted)) %>% summarize(female.n=sum(female.n, na.rm=TRUE), male.n=sum(male.n, na.rm=TRUE))))
-#arxiv.long <- gather(arxiv, gender, n, female.n:male.n)
-#arxiv.long$day_of_week <- wday(arxiv.long$`as.Date(submitted)`, label=TRUE)
-#arxiv.long$date <- as.numeric(arxiv.long$`as.Date(submitted)`)-18261
-#arxiv.long$day_of_week <- factor(arxiv.long$day_of_week, ordered = FALSE)
+arxiv <- as.data.frame(ungroup(subset(df.all2020, as.Date(submitted) >= "2020-01-01" & as.Date(submitted) <= "2020-06-30" & field == "econ") %>% group_by(as.Date(submitted)) %>% summarize(female.n=sum(female.n, na.rm=TRUE), male.n=sum(male.n, na.rm=TRUE))))
+arxiv.long <- gather(arxiv, gender, n, female.n:male.n)
+arxiv.long$day_of_week <- wday(arxiv.long$`as.Date(submitted)`, label=TRUE)
+arxiv.long$date <- as.numeric(arxiv.long$`as.Date(submitted)`)-18261
+arxiv.long$day_of_week <- factor(arxiv.long$day_of_week, ordered = FALSE)
 
 #Fit mdoel
-#lm.econ <- lm(sqrt(n)~date*gender+day_of_week, data=arxiv.long)
-#summary(lm.econ)
-#Anova(lm.econ, type=3)
+lm.econ <- lm(sqrt(n)~date*gender+day_of_week, data=arxiv.long)
+summary(lm.econ)
+Anova(lm.econ, type=3)
 
 #Quantitative biology
 #Aggregate data by day for model
-#arxiv <- as.data.frame(ungroup(subset(df.all2020, as.Date(submitted) >= "2020-01-01" & as.Date(submitted) <= "2020-06-30" & field == "q-bio") %>% group_by(as.Date(submitted)) %>% summarize(female.n=sum(female.n, na.rm=TRUE), male.n=sum(male.n, na.rm=TRUE))))
-#arxiv.long <- gather(arxiv, gender, n, female.n:male.n)
-#arxiv.long$day_of_week <- wday(arxiv.long$`as.Date(submitted)`, label=TRUE)
-#arxiv.long$date <- as.numeric(arxiv.long$`as.Date(submitted)`)-18261
-#arxiv.long$day_of_week <- factor(arxiv.long$day_of_week, ordered = FALSE)
+arxiv <- as.data.frame(ungroup(subset(df.all2020, as.Date(submitted) >= "2020-01-01" & as.Date(submitted) <= "2020-06-30" & field == "q-bio") %>% group_by(as.Date(submitted)) %>% summarize(female.n=sum(female.n, na.rm=TRUE), male.n=sum(male.n, na.rm=TRUE))))
+arxiv.long <- gather(arxiv, gender, n, female.n:male.n)
+arxiv.long$day_of_week <- wday(arxiv.long$`as.Date(submitted)`, label=TRUE)
+arxiv.long$date <- as.numeric(arxiv.long$`as.Date(submitted)`)-18261
+arxiv.long$day_of_week <- factor(arxiv.long$day_of_week, ordered = FALSE)
 
 #Fit mdoel
-#lm.qbio <- lm(sqrt(n)~date*gender+day_of_week, data=arxiv.long)
-#summary(lm.qbio)
-#Anova(lm.qbio, type=3)
-#plot(lm1)
+lm.qbio <- lm(sqrt(n)~date*gender+day_of_week, data=arxiv.long)
+summary(lm.qbio)
+Anova(lm.qbio, type=3)
 
 #Statistics
 #Aggregate data by day for model
-#arxiv <- as.data.frame(ungroup(subset(df.all2020, as.Date(submitted) >= "2020-01-01" & as.Date(submitted) <= "2020-06-30" & field == "stat") %>% group_by(as.Date(submitted)) %>% summarize(female.n=sum(female.n, na.rm=TRUE), male.n=sum(male.n, na.rm=TRUE))))
-#arxiv.long <- gather(arxiv, gender, n, female.n:male.n)
-#arxiv.long$day_of_week <- wday(arxiv.long$`as.Date(submitted)`, label=TRUE)
-#arxiv.long$date <- as.numeric(arxiv.long$`as.Date(submitted)`)-18261
-#arxiv.long$day_of_week <- factor(arxiv.long$day_of_week, ordered = FALSE)
+arxiv <- as.data.frame(ungroup(subset(df.all2020, as.Date(submitted) >= "2020-01-01" & as.Date(submitted) <= "2020-06-30" & field == "stat") %>% group_by(as.Date(submitted)) %>% summarize(female.n=sum(female.n, na.rm=TRUE), male.n=sum(male.n, na.rm=TRUE))))
+arxiv.long <- gather(arxiv, gender, n, female.n:male.n)
+arxiv.long$day_of_week <- wday(arxiv.long$`as.Date(submitted)`, label=TRUE)
+arxiv.long$date <- as.numeric(arxiv.long$`as.Date(submitted)`)-18261
+arxiv.long$day_of_week <- factor(arxiv.long$day_of_week, ordered = FALSE)
 
 #Fit mdoel
-#lm.stat <- lm(sqrt(n)~date*gender+day_of_week, data=arxiv.long)
-#summary(lm.stat)
-#Anova(lm.stat, type=3)
+lm.stat <- lm(sqrt(n)~date*gender+day_of_week, data=arxiv.long)
+summary(lm.stat)
+Anova(lm.stat, type=3)
 
-#Engineering
+#Electrical engineering and systems science
 #Aggregate data by day for model
-#arxiv <- as.data.frame(ungroup(subset(df.all2020, as.Date(submitted) >= "2020-01-01" & as.Date(submitted) <= "2020-06-30" & field == "eess") %>% group_by(as.Date(submitted)) %>% summarize(female.n=sum(female.n, na.rm=TRUE), male.n=sum(male.n, na.rm=TRUE))))
-#arxiv.long <- gather(arxiv, gender, n, female.n:male.n)
-#arxiv.long$day_of_week <- wday(arxiv.long$`as.Date(submitted)`, label=TRUE)
-#arxiv.long$date <- as.numeric(arxiv.long$`as.Date(submitted)`)-18261
-#arxiv.long$day_of_week <- factor(arxiv.long$day_of_week, ordered = FALSE)
+arxiv <- as.data.frame(ungroup(subset(df.all2020, as.Date(submitted) >= "2020-01-01" & as.Date(submitted) <= "2020-06-30" & field == "eess") %>% group_by(as.Date(submitted)) %>% summarize(female.n=sum(female.n, na.rm=TRUE), male.n=sum(male.n, na.rm=TRUE))))
+arxiv.long <- gather(arxiv, gender, n, female.n:male.n)
+arxiv.long$day_of_week <- wday(arxiv.long$`as.Date(submitted)`, label=TRUE)
+arxiv.long$date <- as.numeric(arxiv.long$`as.Date(submitted)`)-18261
+arxiv.long$day_of_week <- factor(arxiv.long$day_of_week, ordered = FALSE)
 
 #Fit mdoel
-#lm.eess <- lm(sqrt(n)~date*gender+day_of_week, data=arxiv.long)
-#summary(lm.eess)
-#Anova(lm.eess, type=3)
+lm.eess <- lm(sqrt(n)~date*gender+day_of_week, data=arxiv.long)
+summary(lm.eess)
+Anova(lm.eess, type=3)
 ```
 
 The gender gap in authorships is growing in physics, math, and computer science. 

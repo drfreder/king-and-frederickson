@@ -592,7 +592,10 @@ or coronavirus in the abstract, and found that only 276 out of 45058, or
 0.6%, mention one of these terms.
 
 Now for the linear model results for each of the 3 big fields in the
-arXiv dataset.
+arXiv dataset (physics, math, and computer science). For sake of
+completion, we also did the other 4 fields (economics and quantitative
+finance, electrical engineering and systems science, statistics, and
+quantitative biology).
 
 ``` r
 #Bin all physics sub-disciplines into "physics"
@@ -815,57 +818,234 @@ save_plot("early2020_by_field.png", p34, base_height=4, base_width=10, dpi=600)
 
 #Economics and quantitative finance
 #Aggregate data by day for model
-#arxiv <- as.data.frame(ungroup(subset(df.all2020, as.Date(submitted) >= "2020-01-01" & as.Date(submitted) <= "2020-06-30" & field == "econ") %>% group_by(as.Date(submitted)) %>% summarize(female.n=sum(female.n, na.rm=TRUE), male.n=sum(male.n, na.rm=TRUE))))
-#arxiv.long <- gather(arxiv, gender, n, female.n:male.n)
-#arxiv.long$day_of_week <- wday(arxiv.long$`as.Date(submitted)`, label=TRUE)
-#arxiv.long$date <- as.numeric(arxiv.long$`as.Date(submitted)`)-18261
-#arxiv.long$day_of_week <- factor(arxiv.long$day_of_week, ordered = FALSE)
+arxiv <- as.data.frame(ungroup(subset(df.all2020, as.Date(submitted) >= "2020-01-01" & as.Date(submitted) <= "2020-06-30" & field == "econ") %>% group_by(as.Date(submitted)) %>% summarize(female.n=sum(female.n, na.rm=TRUE), male.n=sum(male.n, na.rm=TRUE))))
+arxiv.long <- gather(arxiv, gender, n, female.n:male.n)
+arxiv.long$day_of_week <- wday(arxiv.long$`as.Date(submitted)`, label=TRUE)
+arxiv.long$date <- as.numeric(arxiv.long$`as.Date(submitted)`)-18261
+arxiv.long$day_of_week <- factor(arxiv.long$day_of_week, ordered = FALSE)
 
 #Fit mdoel
-#lm.econ <- lm(sqrt(n)~date*gender+day_of_week, data=arxiv.long)
-#summary(lm.econ)
-#Anova(lm.econ, type=3)
+lm.econ <- lm(sqrt(n)~date*gender+day_of_week, data=arxiv.long)
+summary(lm.econ)
+```
 
+    ## 
+    ## Call:
+    ## lm(formula = sqrt(n) ~ date * gender + day_of_week, data = arxiv.long)
+    ## 
+    ## Residuals:
+    ##      Min       1Q   Median       3Q      Max 
+    ## -2.07993 -0.48070 -0.06858  0.56137  2.77328 
+    ## 
+    ## Coefficients:
+    ##                     Estimate Std. Error t value Pr(>|t|)    
+    ## (Intercept)        0.4235531  0.1580761   2.679  0.00773 ** 
+    ## date               0.0006029  0.0011296   0.534  0.59390    
+    ## gendermale.n       1.1362035  0.1699772   6.684 9.51e-11 ***
+    ## day_of_weekMon     0.8853083  0.1558801   5.679 2.90e-08 ***
+    ## day_of_weekTue     0.7160151  0.1558975   4.593 6.17e-06 ***
+    ## day_of_weekWed     0.6406341  0.1558717   4.110 4.96e-05 ***
+    ## day_of_weekThu     0.7343741  0.1543969   4.756 2.92e-06 ***
+    ## day_of_weekFri     0.5668272  0.1543814   3.672  0.00028 ***
+    ## day_of_weekSat    -0.0837290  0.1592487  -0.526  0.59939    
+    ## date:gendermale.n  0.0052417  0.0015961   3.284  0.00113 ** 
+    ## ---
+    ## Signif. codes:  0 '***' 0.001 '**' 0.01 '*' 0.05 '.' 0.1 ' ' 1
+    ## 
+    ## Residual standard error: 0.7793 on 340 degrees of freedom
+    ## Multiple R-squared:  0.5838, Adjusted R-squared:  0.5728 
+    ## F-statistic:    53 on 9 and 340 DF,  p-value: < 2.2e-16
+
+``` r
+Anova(lm.econ, type=3)
+```
+
+    ## Anova Table (Type III tests)
+    ## 
+    ## Response: sqrt(n)
+    ##              Sum Sq  Df F value    Pr(>F)    
+    ## (Intercept)   4.360   1  7.1793  0.007734 ** 
+    ## date          0.173   1  0.2848  0.593896    
+    ## gender       27.138   1 44.6818 9.513e-11 ***
+    ## day_of_week  41.989   6 11.5225 9.600e-12 ***
+    ## date:gender   6.550   1 10.7847  0.001130 ** 
+    ## Residuals   206.499 340                      
+    ## ---
+    ## Signif. codes:  0 '***' 0.001 '**' 0.01 '*' 0.05 '.' 0.1 ' ' 1
+
+``` r
 #Quantitative biology
 #Aggregate data by day for model
-#arxiv <- as.data.frame(ungroup(subset(df.all2020, as.Date(submitted) >= "2020-01-01" & as.Date(submitted) <= "2020-06-30" & field == "q-bio") %>% group_by(as.Date(submitted)) %>% summarize(female.n=sum(female.n, na.rm=TRUE), male.n=sum(male.n, na.rm=TRUE))))
-#arxiv.long <- gather(arxiv, gender, n, female.n:male.n)
-#arxiv.long$day_of_week <- wday(arxiv.long$`as.Date(submitted)`, label=TRUE)
-#arxiv.long$date <- as.numeric(arxiv.long$`as.Date(submitted)`)-18261
-#arxiv.long$day_of_week <- factor(arxiv.long$day_of_week, ordered = FALSE)
+arxiv <- as.data.frame(ungroup(subset(df.all2020, as.Date(submitted) >= "2020-01-01" & as.Date(submitted) <= "2020-06-30" & field == "q-bio") %>% group_by(as.Date(submitted)) %>% summarize(female.n=sum(female.n, na.rm=TRUE), male.n=sum(male.n, na.rm=TRUE))))
+arxiv.long <- gather(arxiv, gender, n, female.n:male.n)
+arxiv.long$day_of_week <- wday(arxiv.long$`as.Date(submitted)`, label=TRUE)
+arxiv.long$date <- as.numeric(arxiv.long$`as.Date(submitted)`)-18261
+arxiv.long$day_of_week <- factor(arxiv.long$day_of_week, ordered = FALSE)
 
 #Fit mdoel
-#lm.qbio <- lm(sqrt(n)~date*gender+day_of_week, data=arxiv.long)
-#summary(lm.qbio)
-#Anova(lm.qbio, type=3)
-#plot(lm1)
+lm.qbio <- lm(sqrt(n)~date*gender+day_of_week, data=arxiv.long)
+summary(lm.qbio)
+```
 
+    ## 
+    ## Call:
+    ## lm(formula = sqrt(n) ~ date * gender + day_of_week, data = arxiv.long)
+    ## 
+    ## Residuals:
+    ##     Min      1Q  Median      3Q     Max 
+    ## -3.0636 -0.6422 -0.1050  0.6460  4.7472 
+    ## 
+    ## Coefficients:
+    ##                    Estimate Std. Error t value Pr(>|t|)    
+    ## (Intercept)        1.491880   0.215393   6.926 2.06e-11 ***
+    ## date               0.005971   0.001545   3.865 0.000132 ***
+    ## gendermale.n       1.248961   0.231016   5.406 1.19e-07 ***
+    ## day_of_weekMon     0.668659   0.213697   3.129 0.001900 ** 
+    ## day_of_weekTue     0.802327   0.213706   3.754 0.000203 ***
+    ## day_of_weekWed     0.644261   0.213739   3.014 0.002763 ** 
+    ## day_of_weekThu     0.806150   0.213720   3.772 0.000190 ***
+    ## day_of_weekFri     0.535016   0.213706   2.504 0.012749 *  
+    ## day_of_weekSat    -0.646979   0.215829  -2.998 0.002914 ** 
+    ## date:gendermale.n  0.003679   0.002184   1.685 0.092958 .  
+    ## ---
+    ## Signif. codes:  0 '***' 0.001 '**' 0.01 '*' 0.05 '.' 0.1 ' ' 1
+    ## 
+    ## Residual standard error: 1.09 on 352 degrees of freedom
+    ## Multiple R-squared:  0.4746, Adjusted R-squared:  0.4611 
+    ## F-statistic: 35.33 on 9 and 352 DF,  p-value: < 2.2e-16
+
+``` r
+Anova(lm.qbio, type=3)
+```
+
+    ## Anova Table (Type III tests)
+    ## 
+    ## Response: sqrt(n)
+    ##             Sum Sq  Df F value    Pr(>F)    
+    ## (Intercept)  56.96   1 47.9739 2.062e-11 ***
+    ## date         17.74   1 14.9401 0.0001321 ***
+    ## gender       34.70   1 29.2290 1.189e-07 ***
+    ## day_of_week  87.88   6 12.3366 1.295e-12 ***
+    ## date:gender   3.37   1  2.8378 0.0929583 .  
+    ## Residuals   417.93 352                      
+    ## ---
+    ## Signif. codes:  0 '***' 0.001 '**' 0.01 '*' 0.05 '.' 0.1 ' ' 1
+
+``` r
 #Statistics
 #Aggregate data by day for model
-#arxiv <- as.data.frame(ungroup(subset(df.all2020, as.Date(submitted) >= "2020-01-01" & as.Date(submitted) <= "2020-06-30" & field == "stat") %>% group_by(as.Date(submitted)) %>% summarize(female.n=sum(female.n, na.rm=TRUE), male.n=sum(male.n, na.rm=TRUE))))
-#arxiv.long <- gather(arxiv, gender, n, female.n:male.n)
-#arxiv.long$day_of_week <- wday(arxiv.long$`as.Date(submitted)`, label=TRUE)
-#arxiv.long$date <- as.numeric(arxiv.long$`as.Date(submitted)`)-18261
-#arxiv.long$day_of_week <- factor(arxiv.long$day_of_week, ordered = FALSE)
+arxiv <- as.data.frame(ungroup(subset(df.all2020, as.Date(submitted) >= "2020-01-01" & as.Date(submitted) <= "2020-06-30" & field == "stat") %>% group_by(as.Date(submitted)) %>% summarize(female.n=sum(female.n, na.rm=TRUE), male.n=sum(male.n, na.rm=TRUE))))
+arxiv.long <- gather(arxiv, gender, n, female.n:male.n)
+arxiv.long$day_of_week <- wday(arxiv.long$`as.Date(submitted)`, label=TRUE)
+arxiv.long$date <- as.numeric(arxiv.long$`as.Date(submitted)`)-18261
+arxiv.long$day_of_week <- factor(arxiv.long$day_of_week, ordered = FALSE)
 
 #Fit mdoel
-#lm.stat <- lm(sqrt(n)~date*gender+day_of_week, data=arxiv.long)
-#summary(lm.stat)
-#Anova(lm.stat, type=3)
-
-#Engineering
-#Aggregate data by day for model
-#arxiv <- as.data.frame(ungroup(subset(df.all2020, as.Date(submitted) >= "2020-01-01" & as.Date(submitted) <= "2020-06-30" & field == "eess") %>% group_by(as.Date(submitted)) %>% summarize(female.n=sum(female.n, na.rm=TRUE), male.n=sum(male.n, na.rm=TRUE))))
-#arxiv.long <- gather(arxiv, gender, n, female.n:male.n)
-#arxiv.long$day_of_week <- wday(arxiv.long$`as.Date(submitted)`, label=TRUE)
-#arxiv.long$date <- as.numeric(arxiv.long$`as.Date(submitted)`)-18261
-#arxiv.long$day_of_week <- factor(arxiv.long$day_of_week, ordered = FALSE)
-
-#Fit mdoel
-#lm.eess <- lm(sqrt(n)~date*gender+day_of_week, data=arxiv.long)
-#summary(lm.eess)
-#Anova(lm.eess, type=3)
+lm.stat <- lm(sqrt(n)~date*gender+day_of_week, data=arxiv.long)
+summary(lm.stat)
 ```
+
+    ## 
+    ## Call:
+    ## lm(formula = sqrt(n) ~ date * gender + day_of_week, data = arxiv.long)
+    ## 
+    ## Residuals:
+    ##     Min      1Q  Median      3Q     Max 
+    ## -2.8582 -0.6500  0.0283  0.5545  3.7909 
+    ## 
+    ## Coefficients:
+    ##                   Estimate Std. Error t value Pr(>|t|)    
+    ## (Intercept)       0.682895   0.194716   3.507 0.000512 ***
+    ## date              0.006009   0.001399   4.296 2.26e-05 ***
+    ## gendermale.n      2.044994   0.209274   9.772  < 2e-16 ***
+    ## day_of_weekMon    1.786126   0.192818   9.263  < 2e-16 ***
+    ## day_of_weekTue    1.806814   0.192825   9.370  < 2e-16 ***
+    ## day_of_weekWed    1.667437   0.194734   8.563 3.48e-16 ***
+    ## day_of_weekThu    1.713119   0.192838   8.884  < 2e-16 ***
+    ## day_of_weekFri    1.588541   0.192825   8.238 3.48e-15 ***
+    ## day_of_weekSat    0.243569   0.192818   1.263 0.207351    
+    ## date:gendermale.n 0.002652   0.001978   1.341 0.180910    
+    ## ---
+    ## Signif. codes:  0 '***' 0.001 '**' 0.01 '*' 0.05 '.' 0.1 ' ' 1
+    ## 
+    ## Residual standard error: 0.9832 on 352 degrees of freedom
+    ## Multiple R-squared:  0.6791, Adjusted R-squared:  0.6709 
+    ## F-statistic: 82.78 on 9 and 352 DF,  p-value: < 2.2e-16
+
+``` r
+Anova(lm.stat, type=3)
+```
+
+    ## Anova Table (Type III tests)
+    ## 
+    ## Response: sqrt(n)
+    ##             Sum Sq  Df F value    Pr(>F)    
+    ## (Intercept)  11.89   1 12.3000 0.0005116 ***
+    ## date         17.84   1 18.4514 2.258e-05 ***
+    ## gender       92.30   1 95.4893 < 2.2e-16 ***
+    ## day_of_week 190.80   6 32.8987 < 2.2e-16 ***
+    ## date:gender   1.74   1  1.7972 0.1809100    
+    ## Residuals   340.25 352                      
+    ## ---
+    ## Signif. codes:  0 '***' 0.001 '**' 0.01 '*' 0.05 '.' 0.1 ' ' 1
+
+``` r
+#Electrical engineering and systems science
+#Aggregate data by day for model
+arxiv <- as.data.frame(ungroup(subset(df.all2020, as.Date(submitted) >= "2020-01-01" & as.Date(submitted) <= "2020-06-30" & field == "eess") %>% group_by(as.Date(submitted)) %>% summarize(female.n=sum(female.n, na.rm=TRUE), male.n=sum(male.n, na.rm=TRUE))))
+arxiv.long <- gather(arxiv, gender, n, female.n:male.n)
+arxiv.long$day_of_week <- wday(arxiv.long$`as.Date(submitted)`, label=TRUE)
+arxiv.long$date <- as.numeric(arxiv.long$`as.Date(submitted)`)-18261
+arxiv.long$day_of_week <- factor(arxiv.long$day_of_week, ordered = FALSE)
+
+#Fit mdoel
+lm.eess <- lm(sqrt(n)~date*gender+day_of_week, data=arxiv.long)
+summary(lm.eess)
+```
+
+    ## 
+    ## Call:
+    ## lm(formula = sqrt(n) ~ date * gender + day_of_week, data = arxiv.long)
+    ## 
+    ## Residuals:
+    ##     Min      1Q  Median      3Q     Max 
+    ## -2.6591 -0.5462 -0.1077  0.5799  3.1200 
+    ## 
+    ## Coefficients:
+    ##                    Estimate Std. Error t value Pr(>|t|)    
+    ## (Intercept)        1.666986   0.187125   8.908  < 2e-16 ***
+    ## date               0.005604   0.001340   4.182 3.65e-05 ***
+    ## gendermale.n       3.187212   0.199894  15.945  < 2e-16 ***
+    ## day_of_weekMon     2.079107   0.186216  11.165  < 2e-16 ***
+    ## day_of_weekTue     2.049864   0.186223  11.008  < 2e-16 ***
+    ## day_of_weekWed     1.497621   0.186252   8.041 1.35e-14 ***
+    ## day_of_weekThu     1.803844   0.186235   9.686  < 2e-16 ***
+    ## day_of_weekFri     1.270906   0.186223   6.825 3.84e-11 ***
+    ## day_of_weekSat    -0.055635   0.186216  -0.299   0.7653    
+    ## date:gendermale.n  0.004432   0.001895   2.340   0.0199 *  
+    ## ---
+    ## Signif. codes:  0 '***' 0.001 '**' 0.01 '*' 0.05 '.' 0.1 ' ' 1
+    ## 
+    ## Residual standard error: 0.9495 on 354 degrees of freedom
+    ## Multiple R-squared:  0.8245, Adjusted R-squared:  0.8201 
+    ## F-statistic: 184.8 on 9 and 354 DF,  p-value: < 2.2e-16
+
+``` r
+Anova(lm.eess, type=3)
+```
+
+    ## Anova Table (Type III tests)
+    ## 
+    ## Response: sqrt(n)
+    ##             Sum Sq  Df  F value    Pr(>F)    
+    ## (Intercept)  71.55   1  79.3595 < 2.2e-16 ***
+    ## date         15.76   1  17.4855 3.653e-05 ***
+    ## gender      229.20   1 254.2286 < 2.2e-16 ***
+    ## day_of_week 257.99   6  47.6926 < 2.2e-16 ***
+    ## date:gender   4.93   1   5.4735   0.01986 *  
+    ## Residuals   319.15 354                       
+    ## ---
+    ## Signif. codes:  0 '***' 0.001 '**' 0.01 '*' 0.05 '.' 0.1 ' ' 1
 
 The gender gap in authorships is growing in physics, math, and computer
 science.
