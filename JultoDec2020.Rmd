@@ -342,9 +342,10 @@ arxiv.long <- gather(arxiv, gender, n, female.n:male.n)
 arxiv.long$day_of_week <- wday(arxiv.long$`as.Date(submitted)`, label=TRUE)
 arxiv.long$date <- as.numeric(arxiv.long$`as.Date(submitted)`)-18261
 arxiv.long$day_of_week <- factor(arxiv.long$day_of_week, ordered = FALSE)
+arxiv.long$COVID <- ifelse(arxiv.long$`as.Date(submitted)` < who, "N", "Y")
 
 #Fit mdoel
-lm1 <- lm(sqrt(n)~date*gender+day_of_week, data=arxiv.long)
+lm1 <- lm(sqrt(n)~date*gender*COVID+day_of_week, data=arxiv.long)
 summary(lm1)
 Anova(lm1, type=3)
 #plot(lm1)
