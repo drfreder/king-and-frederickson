@@ -8,7 +8,8 @@ This repo contains the data and code for the analyses in:
 
 King MM, Frederickson ME. The Pandemic Penalty: COVID-19’s gendered
 impact on scientific productivity. Currently under review, preprint
-available on SocArXiv. The repo was updated in early February, 2021
+available on [SocArXiv](https://osf.io/preprints/socarxiv/8hp7m/). 
+The repo was updated in early February, 2021
 after receiving reviewer comments.
 
 In the paper, we quantified how the COVID-19 pandemic is affecting the
